@@ -8,11 +8,11 @@ export default function Landing() {
 
   return (
     <div className="py-16 text-center">
-      <div className="max-w-3xl mx-auto relative">
-        <h1 className="text-5xl font-bold text-slate-900 mb-6 tracking-tight">
+      <div className="max-w-3xl mx-auto relative px-4 md:px-0">
+        <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-6 tracking-tight">
           {t('landing.title')}
         </h1>
-        <p className="text-xl text-slate-600 mb-12 leading-relaxed">
+        <p className="text-lg md:text-xl text-slate-600 mb-12 leading-relaxed">
           {t('landing.subtitle')}
         </p>
         
@@ -21,7 +21,7 @@ export default function Landing() {
         </Link>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-8 mt-20 max-w-4xl mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 mt-14 md:mt-20 max-w-4xl mx-auto px-4 md:px-0">
         <div className="card p-6">
           <div className="w-12 h-12 bg-[rgb(var(--brand))] bg-opacity-10 rounded-xl flex items-center justify-center mx-auto mb-4">
             <svg className="w-6 h-6 text-[rgb(var(--brand))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">

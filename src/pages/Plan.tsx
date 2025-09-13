@@ -1,4 +1,5 @@
 ﻿import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useApp } from '../store';
 import { useTranslation } from '../i18n';
 import constrainedAreas from '../data/grid_constrained_pc4.json';
@@ -13,9 +14,9 @@ export default function Plan() {
     return (
       <div className="text-center py-16">
         <p className="text-slate-600 mb-4">Please complete the onboarding first.</p>
-        <a href="/start" className="text-[rgb(var(--brand))] hover:underline">
+        <Link to="/start" className="text-[rgb(var(--brand))] hover:underline">
           Start here
-        </a>
+        </Link>
       </div>
     );
   }

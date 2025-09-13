@@ -1,4 +1,5 @@
 ﻿import { Routes, Route, Link, useLocation } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import { useApp } from './store';
 import { useTranslation } from './i18n';
 import Landing from './pages/Landing';
@@ -12,6 +13,12 @@ export default function App() {
   const { profile } = useApp();
   const { t } = useTranslation(profile?.lang || 'en');
   const location = useLocation();
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  useEffect(() => {
+    // Close mobile menu on route change
+    setMobileOpen(false);
+  }, [location.pathname]);
 
   return (
     <div className="min-h-screen">
@@ -20,7 +27,8 @@ export default function App() {
           <Link to="/" className="text-base font-semibold text-[rgb(var(--brand))]">
             GridWise Amsterdam
           </Link>
-          <nav className="flex gap-1 text-sm">
+          {/* Desktop nav */}
+          <nav className="hidden md:flex gap-1 text-sm">
             <Link 
               to="/start" 
               className={`nav-pill ${location.pathname === '/start' ? 'bg-slate-100 font-semibold' : ''}`}
@@ -52,7 +60,60 @@ export default function App() {
               {t('nav.admin')}
             </Link>
           </nav>
+
+          {/* Mobile menu button */}
+          <button
+            className="md:hidden inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm"
+            aria-label="Menu"
+            aria-expanded={mobileOpen}
+            onClick={() => setMobileOpen(o => !o)}
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+            <span>Menu</span>
+          </button>
         </div>
+
+        {/* Mobile nav panel */}
+        {mobileOpen && (
+          <div className="md:hidden border-t bg-white/95 backdrop-blur">
+            <div className="max-w-6xl mx-auto px-4 py-3">
+              <div className="flex gap-2 overflow-x-auto whitespace-nowrap">
+                <Link 
+                  to="/start" 
+                  className={`nav-pill ${location.pathname === '/start' ? 'bg-slate-100 font-semibold' : ''}`}
+                >
+                  {t('nav.start')}
+                </Link>
+                <Link 
+                  to="/plan" 
+                  className={`nav-pill ${location.pathname === '/plan' ? 'bg-slate-100 font-semibold' : ''}`}
+                >
+                  {t('nav.plan')}
+                </Link>
+                <Link 
+                  to="/rewards" 
+                  className={`nav-pill ${location.pathname === '/rewards' ? 'bg-slate-100 font-semibold' : ''}`}
+                >
+                  {t('nav.rewards')}
+                </Link>
+                <Link 
+                  to="/coach" 
+                  className={`nav-pill ${location.pathname === '/coach' ? 'bg-slate-100 font-semibold' : ''}`}
+                >
+                  {t('nav.coach')}
+                </Link>
+                <Link 
+                  to="/admin" 
+                  className={`nav-pill ${location.pathname === '/admin' ? 'bg-slate-100 font-semibold' : ''}`}
+                >
+                  {t('nav.admin')}
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
       </header>
 
       <main className="max-w-6xl mx-auto px-4 py-6">

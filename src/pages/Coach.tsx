@@ -1,4 +1,5 @@
-﻿import { useApp } from '../store';
+﻿import { Link } from 'react-router-dom';
+import { useApp } from '../store';
 import { useTranslation } from '../i18n';
 
 export default function Coach() {
@@ -9,9 +10,9 @@ export default function Coach() {
     return (
       <div className="text-center py-16">
         <p className="text-slate-600 mb-4">Please complete the onboarding first.</p>
-        <a href="/start" className="text-[rgb(var(--brand))] hover:underline">
+        <Link to="/start" className="text-[rgb(var(--brand))] hover:underline">
           Start here
-        </a>
+        </Link>
       </div>
     );
   }
