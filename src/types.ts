@@ -2,6 +2,7 @@ export type PC4 = string; // e.g. "1102"
 export type HeatingType = 'district' | 'gas-boiler' | 'electric' | 'hybrid-heat-pump' | 'unknown';
 export type Tenure = 'renter' | 'owner' | 'vve';
 export type HomeType = 'apartment' | 'row' | 'detached' | 'semi-detached' | 'maisonette' | 'unknown';
+export type DataConsent = 'none' | 'temporary' | 'full';
 
 export interface UserProfile {
   lang: 'en' | 'nl';
@@ -13,11 +14,21 @@ export interface UserProfile {
   heating: HeatingType;
   monthlyBillBand: 'under-100' | '100-200' | '200-300' | '300-plus' | 'unknown';
   comfortPriority: 'save-money' | 'warmer-home' | 'climate-impact';
+  priorities: string[]; // Multiple priorities allowed
+  dataConsent: DataConsent; // Privacy preference
   habits: { 
     laundryPerWeek: number; 
     dishwasher: boolean; 
     nightSetback: boolean; 
-  }; // basic behavioral hooks
+  };
+  autoFillData?: {
+    energyLabel: string;
+    buildYear: number;
+    homeSize: string;
+    roofSuitability: string;
+    districtHeatingAvailable: boolean;
+    gridConstrained: boolean;
+  };
 }
 
 export interface ActionDefinition {
@@ -51,7 +62,31 @@ export interface Recommendation extends ActionDefinition {
 export interface TelemetryEvent {
   t: number; // epoch ms
   sid: string; // anonymous session id
-  event: 'onboarding_completed' | 'action_viewed' | 'pledge_made' | 'coach_booked';
+  event: 'onboarding_completed' | 'action_viewed' | 'pledge_made' | 'coach_booked' | 'action_status_changed';
   pc4: PC4;
   payload?: Record<string, unknown>;
+}
+
+// Policy insight types for Admin dashboard
+export interface PolicyInsight {
+  id: string;
+  category: 'subsidy_gap' | 'barrier_identification' | 'success_pattern' | 'demographic_trend';
+  title: string;
+  description: string;
+  impact: 'high' | 'medium' | 'low';
+  actionable: boolean;
+  affectedAreas: PC4[];
+  recommendation: string;
+  dataPoints: number;
+}
+
+export interface DistrictStats {
+  pc4: PC4;
+  participantCount: number;
+  topActions: string[];
+  averageInvestmentCapacity: number;
+  gridConstrained: boolean;
+  completionRate: number;
+  commonBarriers: string[];
+  energyCooperativeInterest: number;
 }
