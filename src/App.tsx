@@ -73,11 +73,11 @@ export default function App() {
             <span>GridWise Amsterdam</span>
           </div>
           <div className="flex items-center gap-4">
-            <a className="hover:underline" href="/start">{t('nav.start')}</a>
-            <a className="hover:underline" href="/plan">{t('nav.plan')}</a>
-            <a className="hover:underline" href="/rewards">{t('nav.rewards')}</a>
-            <a className="hover:underline" href="/coach">{t('nav.coach')}</a>
-            <a className="hover:underline" href="/admin">{t('nav.admin')}</a>
+            <Link className="hover:underline" to="/start">{t('nav.start')}</Link>
+            <Link className="hover:underline" to="/plan">{t('nav.plan')}</Link>
+            <Link className="hover:underline" to="/rewards">{t('nav.rewards')}</Link>
+            <Link className="hover:underline" to="/coach">{t('nav.coach')}</Link>
+            <Link className="hover:underline" to="/admin">{t('nav.admin')}</Link>
           </div>
         </div>
       </footer>
