@@ -72,9 +72,13 @@ export default function Start() {
               <input 
                 name="pc4" 
                 required 
-                pattern="\\d{4}" 
+                pattern="[0-9]{4}"
+                inputMode="numeric"
+                autoComplete="postal-code"
+                maxLength={4}
                 className="border border-slate-300 rounded-xl px-3 py-2 focus:border-[rgb(var(--brand))] focus:ring-1 focus:ring-[rgb(var(--brand))] outline-none" 
-                placeholder="1102" 
+                placeholder="1102"
+                title="Enter the first 4 digits of your postcode"
               />
             </label>
             
