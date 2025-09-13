@@ -8,8 +8,10 @@ export const scoreActions = (profile: UserProfile): Recommendation[] => {
   const maxSave = Math.max(...actions.map(a => a.annualSavingsEUR[1]));
   const inHotZone = constrained.includes(profile.pc4);
 
+  // Filter by eligibility and investment capacity (keep low‑cost regardless)
   return actions
     .filter(a => isEligible(a, profile))
+    .filter(a => a.category === 'low-cost' || a.costRangeEUR[0] <= (profile.investmentCapacityEUR ?? 0))
     .map(a => toRecommendation(a, profile, { minSave, maxSave, inHotZone }))
     .sort((a, b) => b.score - a.score);
 };

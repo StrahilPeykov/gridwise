@@ -16,6 +16,7 @@ export default function Start() {
     const profile: UserProfile = {
       lang: (form.get('lang') as 'en' | 'nl') ?? 'en',
       pc4: String(form.get('pc4') ?? ''),
+      investmentCapacityEUR: Number(form.get('investment') ?? 0),
       homeType: form.get('homeType') as any,
       buildYearBand: form.get('buildYearBand') as any,
       tenure: form.get('tenure') as any,
@@ -123,6 +124,21 @@ export default function Start() {
                   <option value="electric">Electric heating</option>
                   <option value="hybrid-heat-pump">Hybrid heat pump</option>
                   <option value="unknown">Not sure</option>
+                </select>
+              </label>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-4">
+              <label className="grid gap-2">
+                <span className="font-medium">{t('onboarding.invest')}</span>
+                <select name="investment" className="border border-slate-300 rounded-xl px-3 py-2 focus:border-[rgb(var(--brand))] focus:ring-1 focus:ring-[rgb(var(--brand))] outline-none">
+                  <option value="0">€0 (no upfront budget)</option>
+                  <option value="50">Up to €50</option>
+                  <option value="100">Up to €100</option>
+                  <option value="500">Up to €500</option>
+                  <option value="2000">Up to €2,000</option>
+                  <option value="5000">Up to €5,000</option>
+                  <option value="10000">€10,000+</option>
                 </select>
               </label>
             </div>

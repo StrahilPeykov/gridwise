@@ -56,6 +56,7 @@ export default function Coach() {
             <h3 className="font-medium mb-2">Home Details</h3>
             <div className="space-y-1 text-sm">
               <div><strong>Postcode:</strong> {profile.pc4}</div>
+              <div><strong>Budget:</strong> up to €{profile.investmentCapacityEUR.toLocaleString()}</div>
               <div><strong>Home Type:</strong> {profile.homeType}</div>
               <div><strong>Build Year:</strong> {profile.buildYearBand}</div>
               <div><strong>Tenure:</strong> {profile.tenure}</div>

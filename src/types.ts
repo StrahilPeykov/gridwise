@@ -7,6 +7,7 @@ export type HomeType = 'apartment' | 'row' | 'detached' | 'semi-detached' | 'mai
 export interface UserProfile {
   lang: 'en' | 'nl';
   pc4: PC4; // first 4 postcode digits
+  investmentCapacityEUR: number; // upfront budget
   homeType: HomeType;
   buildYearBand: 'pre-1992' | '1992-2005' | 'post-2005' | 'unknown';
   tenure: Tenure;
