@@ -1,4 +1,3 @@
-// src/types.ts
 export type PC4 = string; // e.g. "1102"
 export type HeatingType = 'district' | 'gas-boiler' | 'electric' | 'hybrid-heat-pump' | 'unknown';
 export type Tenure = 'renter' | 'owner' | 'vve';

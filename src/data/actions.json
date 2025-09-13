@@ -2,157 +2,82 @@
   {
     "id": "draught-proofing",
     "category": "low-cost",
-    "title": "Seal drafts & fit door brushes",
-    "summary": "Quick DIY to cut heat loss around doors and windows.",
+    "title": "Seal drafts & improve home insulation",
+    "summary": "Quick DIY measures to reduce heat loss - priority action for vulnerable residents.",
     "audience": ["renter", "owner", "vve"],
     "requires": {},
-    "costRangeEUR": [20, 50],
-    "annualSavingsEUR": [60, 120],
-    "annualCO2kg": [40, 90],
+    "costRangeEUR": [20, 80],
+    "annualSavingsEUR": [80, 200],
+    "annualCO2kg": [60, 150],
     "peakRelief": "medium",
     "feasibility": "easy",
     "renterFriendly": true,
     "subsidies": [
       { 
         "code": "Municipal", 
-        "note": "Check small measures vouchers" 
+        "note": "Amsterdam provides support vouchers for small energy measures for low-income households" 
+      },
+      { 
+        "code": "ISDE", 
+        "note": "National subsidy for energy-saving measures" 
       }
     ],
     "howTo": [
-      "Buy 2x door brush, 1x window foam strip", 
-      "Install in 30–45 min"
+      "Visit Duurzaam Wonen Amsterdam website", 
+      "Check eligibility for municipal support",
+      "Purchase materials: door brushes, window sealing strips",
+      "Install yourself or request help from energy coach"
     ],
-    "evidence": ["Milieu Centraal"]
+    "evidence": ["Milieu Centraal", "Duurzaam Wonen Amsterdam"]
   },
   {
-    "id": "radiator-foil",
-    "category": "low-cost",
-    "title": "Install radiator foil",
-    "summary": "Reflect heat back into rooms on external walls.",
-    "audience": ["renter", "owner", "vve"],
-    "requires": {},
-    "costRangeEUR": [15, 30],
-    "annualSavingsEUR": [20, 50],
-    "annualCO2kg": [10, 30],
-    "peakRelief": "low",
-    "feasibility": "easy",
-    "renterFriendly": true,
-    "subsidies": [],
-    "howTo": [
-      "Cut to size", 
-      "Apply behind radiators on outside walls"
-    ],
-    "evidence": ["Milieu Centraal"]
-  },
-  {
-    "id": "hybrid-heat-pump-triage",
+    "id": "hybrid-heat-pump-assessment",
     "category": "medium",
-    "title": "Hybrid heat pump: am I a match?",
-    "summary": "Simple triage for homes with gas boilers.",
+    "title": "Hybrid heat pump assessment & installation",
+    "summary": "Bridge solution for Amsterdam's gas phase-out by 2040 - combines heat pump with existing boiler.",
     "audience": ["owner", "vve"],
     "requires": { 
       "heating": "gas-boiler" 
     },
-    "costRangeEUR": [2500, 4500],
-    "annualSavingsEUR": [200, 500],
-    "annualCO2kg": [300, 800],
+    "costRangeEUR": [4000, 8000],
+    "annualSavingsEUR": [300, 800],
+    "annualCO2kg": [500, 1200],
     "peakRelief": "high",
     "feasibility": "moderate",
     "renterFriendly": false,
     "subsidies": [
       { 
         "code": "ISDE", 
-        "note": "Investment subsidy for (hybrid) heat pump" 
+        "note": "National investment subsidy up to €2,500 for hybrid heat pumps" 
       },
       { 
         "code": "Warmtefonds", 
-        "note": "0% interest possible under income threshold" 
+        "note": "0% interest loans for energy measures, available for lower incomes" 
+      },
+      {
+        "code": "Municipal",
+        "note": "Amsterdam supports VVEs with guidance and potential additional subsidies"
       }
     ],
     "howTo": [
-      "Check outdoor unit mounting", 
-      "Verify radiators & insulation"
+      "Use Amsterdam's heat pump suitability tool", 
+      "Book free energy coach consultation",
+      "Get quotes from certified installers",
+      "Apply for ISDE subsidy before installation",
+      "Consider Warmtefonds financing if eligible"
     ],
-    "evidence": ["RVO", "Municipal"]
+    "evidence": ["RVO", "Duurzaam Wonen Amsterdam", "Warmtefonds"]
   },
   {
-    "id": "smart-thermostat",
-    "category": "low-cost",
-    "title": "Install smart thermostat",
-    "summary": "Automatically optimize heating schedule and reduce peak demand.",
-    "audience": ["renter", "owner", "vve"],
-    "requires": {},
-    "costRangeEUR": [80, 200],
-    "annualSavingsEUR": [50, 150],
-    "annualCO2kg": [30, 80],
-    "peakRelief": "high",
-    "feasibility": "easy",
-    "renterFriendly": true,
-    "subsidies": [
-      { 
-        "code": "Municipal", 
-        "note": "Some municipalities offer smart home vouchers" 
-      }
-    ],
-    "howTo": [
-      "Choose compatible model", 
-      "Install or hire electrician",
-      "Configure heating schedule"
-    ],
-    "evidence": ["Milieu Centraal", "RVO"]
-  },
-  {
-    "id": "led-lighting",
-    "category": "low-cost",
-    "title": "Replace with LED lighting",
-    "summary": "Reduce electricity consumption and heat generation.",
-    "audience": ["renter", "owner", "vve"],
-    "requires": {},
-    "costRangeEUR": [30, 80],
-    "annualSavingsEUR": [40, 100],
-    "annualCO2kg": [20, 50],
-    "peakRelief": "low",
-    "feasibility": "easy",
-    "renterFriendly": true,
-    "subsidies": [],
-    "howTo": [
-      "Calculate number of bulbs needed", 
-      "Replace existing bulbs",
-      "Consider dimmer compatibility"
-    ],
-    "evidence": ["Milieu Centraal"]
-  },
-  {
-    "id": "window-insulation-film",
-    "category": "low-cost",
-    "title": "Apply window insulation film",
-    "summary": "Add temporary insulation layer to single-glazed windows.",
-    "audience": ["renter", "owner", "vve"],
-    "requires": {},
-    "costRangeEUR": [25, 60],
-    "annualSavingsEUR": [80, 160],
-    "annualCO2kg": [50, 120],
-    "peakRelief": "medium",
-    "feasibility": "easy",
-    "renterFriendly": true,
-    "subsidies": [],
-    "howTo": [
-      "Measure window dimensions", 
-      "Apply film carefully to avoid bubbles",
-      "Seal edges properly"
-    ],
-    "evidence": ["Milieu Centraal"]
-  },
-  {
-    "id": "solar-panels",
+    "id": "solar-panels-collective",
     "category": "major-investment",
-    "title": "Install solar panels",
-    "summary": "Generate renewable electricity and reduce grid dependency.",
+    "title": "Solar panels (individual or collective)",
+    "summary": "Generate renewable electricity - Amsterdam aims for 100% locally-owned wind and solar by 2030.",
     "audience": ["owner", "vve"],
     "requires": {},
-    "costRangeEUR": [5000, 12000],
-    "annualSavingsEUR": [600, 1200],
-    "annualCO2kg": [800, 1500],
+    "costRangeEUR": [5000, 15000],
+    "annualSavingsEUR": [600, 1400],
+    "annualCO2kg": [800, 1800],
     "peakRelief": "high",
     "feasibility": "pro",
     "renterFriendly": false,
@@ -160,39 +85,172 @@
       { 
         "code": "ISDE", 
         "note": "Investment subsidy for solar installations" 
+      },
+      {
+        "code": "Municipal",
+        "note": "Amsterdam promotes energy cooperatives and collective solar projects"
       }
     ],
     "howTo": [
-      "Roof inspection and structural assessment", 
+      "Check roof suitability on amsterdam.nl solar map", 
+      "Consider joining local energy cooperative",
       "Get quotes from certified installers",
-      "Apply for permits and subsidies"
+      "Apply for permits if needed",
+      "Explore collective purchasing through neighborhood initiatives"
     ],
-    "evidence": ["RVO", "Municipal"]
+    "evidence": ["RVO", "Duurzaam Wonen Amsterdam", "Energy cooperatives overview"]
   },
   {
-    "id": "insulation-roof",
-    "category": "medium",
-    "title": "Improve roof insulation",
-    "summary": "Major heat loss reduction through better roof insulation.",
+    "id": "district-heating-connection",
+    "category": "major-investment",
+    "title": "District heating connection assessment",
+    "summary": "Connect to sustainable district heating network - Amsterdam is developing public heating company.",
     "audience": ["owner", "vve"],
     "requires": {},
-    "costRangeEUR": [1500, 3500],
-    "annualSavingsEUR": [300, 600],
-    "annualCO2kg": [200, 400],
+    "costRangeEUR": [3000, 12000],
+    "annualSavingsEUR": [200, 600],
+    "annualCO2kg": [800, 1500],
+    "peakRelief": "high",
+    "feasibility": "pro",
+    "renterFriendly": false,
+    "subsidies": [
+      {
+        "code": "Municipal",
+        "note": "Amsterdam is developing public heating company to ensure affordable district heating"
+      },
+      { 
+        "code": "ISDE", 
+        "note": "Subsidy for connection to sustainable heating networks" 
+      }
+    ],
+    "howTo": [
+      "Check district heating availability in your area", 
+      "Contact Amsterdam's heating transition team",
+      "Assess connection costs and timeline",
+      "Consider collective approach for VVEs"
+    ],
+    "evidence": ["Amsterdam Heating Transition Vision", "Municipal policy documents"]
+  },
+  {
+    "id": "insulation-priority",
+    "category": "medium",
+    "title": "Home insulation (priority for vulnerable residents)",
+    "summary": "Major energy savings - Amsterdam prioritizes poorly insulated homes with vulnerable residents.",
+    "audience": ["owner", "vve", "renter"],
+    "requires": {},
+    "costRangeEUR": [2000, 8000],
+    "annualSavingsEUR": [400, 1200],
+    "annualCO2kg": [300, 900],
     "peakRelief": "medium",
     "feasibility": "moderate",
     "renterFriendly": false,
     "subsidies": [
       { 
         "code": "ISDE", 
-        "note": "Insulation subsidy available" 
+        "note": "National insulation subsidy" 
+      },
+      {
+        "code": "Municipal",
+        "note": "Amsterdam offers targeted support for low-income households and vulnerable residents"
+      },
+      { 
+        "code": "Warmtefonds", 
+        "note": "Low-interest financing for insulation measures" 
       }
     ],
     "howTo": [
-      "Assess current insulation level", 
-      "Choose appropriate insulation material",
-      "Hire certified installer"
+      "Book energy scan through Amsterdam energy coaches", 
+      "Check eligibility for low-income support",
+      "Get quotes from certified contractors",
+      "Apply for subsidies before starting work"
     ],
-    "evidence": ["RVO", "Milieu Centraal"]
+    "evidence": ["Duurzaam Wonen Amsterdam", "RVO", "Municipal insulation program"]
+  },
+  {
+    "id": "smart-thermostat-peak",
+    "category": "low-cost",
+    "title": "Smart thermostat for peak demand reduction",
+    "summary": "Automatically optimize heating schedule to reduce grid peak demand - extra valuable in congested areas.",
+    "audience": ["renter", "owner", "vve"],
+    "requires": {},
+    "costRangeEUR": [100, 300],
+    "annualSavingsEUR": [80, 200],
+    "annualCO2kg": [50, 120],
+    "peakRelief": "high",
+    "feasibility": "easy",
+    "renterFriendly": true,
+    "subsidies": [
+      { 
+        "code": "Municipal", 
+        "note": "Some Amsterdam districts offer smart home technology vouchers" 
+      }
+    ],
+    "howTo": [
+      "Choose model compatible with existing heating", 
+      "Install yourself or hire certified technician",
+      "Configure for off-peak heating optimization",
+      "Connect to Amsterdam grid-friendly programs if available"
+    ],
+    "evidence": ["Milieu Centraal", "Grid congestion studies"]
+  },
+  {
+    "id": "energy-cooperative-joining",
+    "category": "low-cost",
+    "title": "Join local energy cooperative",
+    "summary": "Participate in collective energy generation and purchasing - Amsterdam supports 100% local ownership.",
+    "audience": ["renter", "owner", "vve"],
+    "requires": {},
+    "costRangeEUR": [25, 200],
+    "annualSavingsEUR": [50, 300],
+    "annualCO2kg": [100, 400],
+    "peakRelief": "medium",
+    "feasibility": "easy",
+    "renterFriendly": true,
+    "subsidies": [
+      {
+        "code": "Municipal",
+        "note": "Amsterdam provides support for energy cooperatives and citizen groups"
+      }
+    ],
+    "howTo": [
+      "Find energy cooperatives in your neighborhood", 
+      "Contact KetelhuisWG, Hart for K-buurt, or other local initiatives",
+      "Attend information meeting",
+      "Join as member to access collective energy purchasing"
+    ],
+    "evidence": ["Energy communities overview North-Holland", "Municipal cooperative support"]
+  },
+  {
+    "id": "heritage-building-insulation",
+    "category": "medium",
+    "title": "Historic building energy retrofit",
+    "summary": "Specialized solutions for Amsterdam's historic buildings - balancing heritage and sustainability.",
+    "audience": ["owner", "vve"],
+    "requires": {
+      "buildYearBand": "pre-1992"
+    },
+    "costRangeEUR": [3000, 12000],
+    "annualSavingsEUR": [300, 800],
+    "annualCO2kg": [200, 600],
+    "peakRelief": "low",
+    "feasibility": "pro",
+    "renterFriendly": false,
+    "subsidies": [
+      {
+        "code": "Municipal",
+        "note": "Amsterdam has specialized support for heritage building energy improvements"
+      },
+      { 
+        "code": "ISDE", 
+        "note": "Heritage-appropriate insulation materials eligible" 
+      }
+    ],
+    "howTo": [
+      "Consult Amsterdam heritage energy specialists", 
+      "Review Implementation Agenda for Sustainable Heritage",
+      "Get assessment of heritage-compatible measures",
+      "Apply for specialized permits if needed"
+    ],
+    "evidence": ["Implementation Agenda Sustainable Heritage", "Municipal heritage policy"]
   }
 ]

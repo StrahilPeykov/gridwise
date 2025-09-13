@@ -1,4 +1,3 @@
-// src/scoring.ts
 import actions from './data/actions.json';
 import constrained from './data/grid_constrained_pc4.json';
 import type { ActionDefinition, Recommendation, UserProfile } from './types';

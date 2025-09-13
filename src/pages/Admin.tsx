@@ -1,33 +1,47 @@
 ﻿import { useMemo } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Area, AreaChart } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
 import { useApp } from '../store';
 import { useTranslation } from '../i18n';
 import constrainedAreas from '../data/grid_constrained_pc4.json';
 
-export default function Admin() {
+// A10 ring road postal codes
+const A10_INNER_POSTCODES = [
+  '1011', '1012', '1013', '1014', '1015', '1016', '1017', '1018', '1019', 
+  '1020', '1021', '1071', '1072', '1073', '1074', '1075', '1076', '1077'
+];
+
+export default function AmsterdamAdmin() {
   const { events, profile } = useApp();
   const { t } = useTranslation(profile?.lang || 'en');
 
-  // Generate realistic demo data for municipal dashboard
+  // Generate Amsterdam-specific demo data
   const mockEvents = useMemo(() => {
     const baseEvents = [...events];
     const demoEvents = [];
     
-    // All PC4 areas (constrained + some others)
-    const allPC4s = [...constrainedAreas, '1011', '1015', '1020', '1022', '1050', '1060', '1070', '1080', '1090'];
-    const actions = ['smart-thermostat', 'hybrid-heat-pump-triage', 'solar-panels', 'draught-proofing', 'radiator-foil', 'led-lighting', 'insulation-roof'];
+    // Amsterdam PC4 areas (constrained + A10 + others)
+    const allPC4s = [...constrainedAreas, ...A10_INNER_POSTCODES, '1050', '1060', '1080', '1090', '1100', '1110'];
+    const uniquePC4s = [...new Set(allPC4s)];
+    
+    // Amsterdam priority actions
+    const actions = [
+      'gas-to-district-heating', 'hybrid-heat-pump-gas-transition', 'amsterdam-solar-roofs',
+      'circular-insulation-materials', 'climate-adaptive-windows', 'smart-thermostat-grid-friendly',
+      'amsterdam-repair-cafe', 'led-lighting-efficient', 'draught-proofing-climate-adaptive'
+    ];
+    
     const pledgeTypes = ['offPeakUsage', 'nightSetback'];
     
-    // Generate events over the last 8 weeks
+    // Generate events over the last 12 weeks (program expansion)
     const now = Date.now();
     const oneDay = 24 * 60 * 60 * 1000;
     
-    // Generate 487 residents over time (realistic for a program launch)
-    for (let i = 0; i < 487; i++) {
-      const daysAgo = Math.floor(Math.random() * 56); // Last 8 weeks
+    // Generate 1,247 Amsterdammers over time
+    for (let i = 0; i < 1247; i++) {
+      const daysAgo = Math.floor(Math.random() * 84); // Last 12 weeks
       const timestamp = now - (daysAgo * oneDay) - Math.random() * oneDay;
-      const pc4 = allPC4s[Math.floor(Math.random() * allPC4s.length)];
-      const sid = `resident_${i}`;
+      const pc4 = uniquePC4s[Math.floor(Math.random() * uniquePC4s.length)];
+      const sid = `amsterdammer_${i}`;
       
       // Onboarding completed
       demoEvents.push({
@@ -38,28 +52,31 @@ export default function Admin() {
         payload: {}
       });
       
-      // 73% chance they view actions
-      if (Math.random() < 0.73) {
-        // View 1-3 actions
+      // 78% chance they view actions (higher engagement for Amsterdam-specific messaging)
+      if (Math.random() < 0.78) {
         const numActions = Math.floor(Math.random() * 3) + 1;
         for (let j = 0; j < numActions; j++) {
           const actionId = actions[Math.floor(Math.random() * actions.length)];
-          const viewTime = timestamp + Math.random() * oneDay * 2; // Within 2 days
-          const accepted = Math.random() < 0.42; // 42% acceptance rate
+          const viewTime = timestamp + Math.random() * oneDay * 3;
+          
+          // Higher acceptance for Amsterdam priority actions
+          const isAmsterdamPriority = ['gas-to-district-heating', 'amsterdam-solar-roofs', 'amsterdam-repair-cafe'].includes(actionId);
+          const baseAcceptanceRate = isAmsterdamPriority ? 0.52 : 0.38;
+          const accepted = Math.random() < baseAcceptanceRate;
           
           demoEvents.push({
             t: viewTime,
             sid,
             event: 'action_viewed',
             pc4,
-            payload: { actionId, accepted }
+            payload: { actionId, accepted, amsterdamPriority: isAmsterdamPriority }
           });
         }
       }
       
-      // 35% chance they make pledges
-      if (Math.random() < 0.35) {
-        const pledgeTime = timestamp + Math.random() * oneDay * 7; // Within a week
+      // 42% chance they make pledges (climate justice engagement)
+      if (Math.random() < 0.42) {
+        const pledgeTime = timestamp + Math.random() * oneDay * 7;
         const pledgeType = pledgeTypes[Math.floor(Math.random() * pledgeTypes.length)];
         
         demoEvents.push({
@@ -71,9 +88,9 @@ export default function Admin() {
         });
       }
       
-      // 18% chance they book a coach (after viewing actions)
-      if (Math.random() < 0.18 && demoEvents.some(e => e.sid === sid && e.event === 'action_viewed')) {
-        const coachTime = timestamp + Math.random() * oneDay * 14; // Within 2 weeks
+      // 22% chance they book a coach
+      if (Math.random() < 0.22 && demoEvents.some(e => e.sid === sid && e.event === 'action_viewed')) {
+        const coachTime = timestamp + Math.random() * oneDay * 14;
         
         demoEvents.push({
           t: coachTime,
@@ -88,13 +105,16 @@ export default function Admin() {
     return [...baseEvents, ...demoEvents].sort((a, b) => a.t - b.t);
   }, [events]);
 
-  // Policy-relevant metrics
-  const policyMetrics = useMemo(() => {
-    const totalUsers = mockEvents.filter(e => e.event === 'onboarding_completed').length;
-    const gridConstrainedUsers = mockEvents.filter(e => 
+  // Amsterdam Climate Roadmap metrics
+  const amsterdamMetrics = useMemo(() => {
+    const totalAmsterdammers = mockEvents.filter(e => e.event === 'onboarding_completed').length;
+    const gridConstrainedParticipants = mockEvents.filter(e => 
       e.event === 'onboarding_completed' && constrainedAreas.includes(e.pc4)
     ).length;
-    const coachBookings = mockEvents.filter(e => e.event === 'coach_booked').length;
+    const a10ZoneParticipants = mockEvents.filter(e => 
+      e.event === 'onboarding_completed' && A10_INNER_POSTCODES.includes(e.pc4)
+    ).length;
+    const coachConsultations = mockEvents.filter(e => e.event === 'coach_booked').length;
     const activePledges = mockEvents.filter(e => e.event === 'pledge_made').length;
     
     const acceptedActions = mockEvents.filter(e => 
@@ -103,22 +123,41 @@ export default function Admin() {
       (e.payload as any).accepted
     );
 
+    // Gas phase-out actions specifically
+    const gasPhaseOutActions = acceptedActions.filter(e => 
+      ['gas-to-district-heating', 'hybrid-heat-pump-gas-transition'].includes((e.payload as any).actionId)
+    );
+
+    // Solar roof actions
+    const solarActions = acceptedActions.filter(e => 
+      (e.payload as any).actionId === 'amsterdam-solar-roofs'
+    );
+
+    // Circular economy actions
+    const circularActions = acceptedActions.filter(e => 
+      ['circular-insulation-materials', 'amsterdam-repair-cafe'].includes((e.payload as any).actionId)
+    );
+
     return {
-      totalUsers,
-      gridConstrainedUsers,
-      coachBookings,
+      totalAmsterdammers,
+      gridConstrainedParticipants,
+      a10ZoneParticipants,
+      coachConsultations,
       activePledges,
       acceptedActions: acceptedActions.length,
-      conversionRate: totalUsers > 0 ? (acceptedActions.length / totalUsers * 100).toFixed(1) : '0',
-      gridAreaEngagement: gridConstrainedUsers > 0 ? (gridConstrainedUsers / totalUsers * 100).toFixed(1) : '0'
+      gasPhaseOutActions: gasPhaseOutActions.length,
+      solarActions: solarActions.length,
+      circularActions: circularActions.length,
+      climateMovementEngagement: totalAmsterdammers > 0 ? (acceptedActions.length / totalAmsterdammers * 100).toFixed(1) : '0',
+      gasTransitionRate: totalAmsterdammers > 0 ? (gasPhaseOutActions.length / totalAmsterdammers * 100).toFixed(1) : '0'
     };
   }, [mockEvents]);
 
-  // Weekly engagement trend
-  const weeklyTrend = useMemo(() => {
+  // Weekly progress toward Amsterdam climate goals
+  const weeklyClimateProgress = useMemo(() => {
     const weeks = [];
     const now = new Date();
-    for (let i = 6; i >= 0; i--) {
+    for (let i = 11; i >= 0; i--) {
       const weekStart = new Date(now.getTime() - (i * 7 * 24 * 60 * 60 * 1000));
       const weekEnd = new Date(weekStart.getTime() + (7 * 24 * 60 * 60 * 1000));
       
@@ -127,18 +166,37 @@ export default function Admin() {
         return eventDate >= weekStart && eventDate < weekEnd;
       });
 
+      const gasActions = weekEvents.filter(e => 
+        e.event === 'action_viewed' && 
+        (e.payload as any)?.accepted &&
+        ['gas-to-district-heating', 'hybrid-heat-pump-gas-transition'].includes((e.payload as any).actionId)
+      ).length;
+
+      const solarActions = weekEvents.filter(e => 
+        e.event === 'action_viewed' && 
+        (e.payload as any)?.accepted &&
+        (e.payload as any).actionId === 'amsterdam-solar-roofs'
+      ).length;
+
+      const circularActions = weekEvents.filter(e => 
+        e.event === 'action_viewed' && 
+        (e.payload as any)?.accepted &&
+        ['circular-insulation-materials', 'amsterdam-repair-cafe'].includes((e.payload as any).actionId)
+      ).length;
+
       weeks.push({
-        week: `Week ${7-i}`,
-        onboardings: weekEvents.filter(e => e.event === 'onboarding_completed').length,
-        actions: weekEvents.filter(e => e.event === 'action_viewed' && (e.payload as any)?.accepted).length,
-        pledges: weekEvents.filter(e => e.event === 'pledge_made').length
+        week: `W${12-i}`,
+        newAmsterdammers: weekEvents.filter(e => e.event === 'onboarding_completed').length,
+        gasPhaseOut: gasActions,
+        solarRoofs: solarActions,
+        circularEconomy: circularActions
       });
     }
     return weeks;
   }, [mockEvents]);
 
-  // Action popularity analysis
-  const actionAnalysis = useMemo(() => {
+  // Amsterdam priority action analysis
+  const amsterdamActionAnalysis = useMemo(() => {
     const actionEvents = mockEvents.filter(e => 
       e.event === 'action_viewed' && e.payload && (e.payload as any).actionId
     );
@@ -146,9 +204,10 @@ export default function Admin() {
     const actionStats = actionEvents.reduce((acc, event) => {
       const actionId = (event.payload as any).actionId;
       const accepted = (event.payload as any).accepted || false;
+      const isAmsterdamPriority = (event.payload as any).amsterdamPriority || false;
       
       if (!acc[actionId]) {
-        acc[actionId] = { views: 0, accepts: 0, rejects: 0 };
+        acc[actionId] = { views: 0, accepts: 0, rejects: 0, isAmsterdamPriority };
       }
       
       acc[actionId].views++;
@@ -156,46 +215,38 @@ export default function Admin() {
       else acc[actionId].rejects++;
       
       return acc;
-    }, {} as Record<string, { views: number; accepts: number; rejects: number }>);
+    }, {} as Record<string, { views: number; accepts: number; rejects: number; isAmsterdamPriority: boolean }>);
 
     return Object.entries(actionStats)
       .map(([actionId, stats]) => ({
         action: actionId.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
         acceptRate: stats.views > 0 ? Math.round((stats.accepts / stats.views) * 100) : 0,
         views: stats.views,
-        accepts: stats.accepts
+        accepts: stats.accepts,
+        amsterdamPriority: stats.isAmsterdamPriority
       }))
-      .sort((a, b) => b.accepts - a.accepts);
+      .sort((a, b) => {
+        // Priority actions first, then by acceptance count
+        if (a.amsterdamPriority !== b.amsterdamPriority) {
+          return a.amsterdamPriority ? -1 : 1;
+        }
+        return b.accepts - a.accepts;
+      });
   }, [mockEvents]);
 
-  // Grid area performance
-  const gridAreaStats = useMemo(() => {
-    const areaStats = constrainedAreas.map(pc4 => {
-      const areaEvents = mockEvents.filter(e => e.pc4 === pc4);
-      const users = areaEvents.filter(e => e.event === 'onboarding_completed').length;
-      const actions = areaEvents.filter(e => 
-        e.event === 'action_viewed' && (e.payload as any)?.accepted
-      ).length;
-      
-      return {
-        area: pc4,
-        users,
-        actions,
-        engagement: users > 0 ? Math.round((actions / users) * 100) : 0
-      };
-    }).filter(stat => stat.users > 0);
-
-    return areaStats.sort((a, b) => b.engagement - a.engagement);
-  }, [mockEvents]);
-
-  const exportData = () => {
+  const exportAmsterdamReport = () => {
     const report = {
       generated: new Date().toISOString(),
-      summary: policyMetrics,
-      weeklyTrend,
-      actionAnalysis,
-      gridAreaStats,
-      rawEvents: mockEvents.map(e => ({ ...e, payload: undefined })) // Remove detailed payload for privacy
+      amsterdamClimateGoals: {
+        "2030": "55% CO₂ reduction, emission-free A10 traffic",
+        "2040": "Natural gas completely phased out",
+        "2050": "95% CO₂ reduction, fully climate neutral"
+      },
+      summary: amsterdamMetrics,
+      weeklyProgress: weeklyClimateProgress,
+      actionAnalysis: amsterdamActionAnalysis,
+      climateJusticeNote: "Strongest shoulders bear heaviest burdens - ensure low/medium income households face no extra costs",
+      newAmsterdamClimateMovement: "Part of 200+ initiative platform for collective climate action"
     };
     
     const dataStr = JSON.stringify(report, null, 2);
@@ -203,14 +254,14 @@ export default function Admin() {
     const url = URL.createObjectURL(dataBlob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `amsterdam-energy-policy-report-${new Date().toISOString().split('T')[0]}.json`;
+    link.download = `amsterdam-climate-roadmap-report-${new Date().toISOString().split('T')[0]}.json`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
   };
 
-  const COLORS = ['#22c55e', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
+  const AMSTERDAM_COLORS = ['#22c55e', '#dc2626', '#f59e0b', '#3b82f6', '#8b5cf6', '#06b6d4'];
 
   return (
     <div className="max-w-7xl mx-auto">
@@ -218,9 +269,9 @@ export default function Admin() {
       <div className="mb-8">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-slate-900">Energy Transition Dashboard</h1>
+            <h1 className="text-3xl font-bold text-slate-900">Amsterdam Climate Roadmap Dashboard</h1>
             <p className="text-slate-600 mt-2">
-              Policy insights for Amsterdam's sustainable energy program
+              Progress tracking toward 2030, 2040, and 2050 climate neutrality goals
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -230,91 +281,143 @@ export default function Admin() {
               <div className="w-2 h-2 bg-red-600 rounded-full"></div>
             </div>
             <span className="text-sm text-slate-600">Gemeente Amsterdam</span>
-            <button onClick={exportData} className="btn-primary">
+            <button onClick={exportAmsterdamReport} className="btn-primary">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
-              Export Report
+              Export Climate Report
             </button>
           </div>
         </div>
 
-        {/* Key Performance Indicators */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-4 mb-8">
+        {/* Amsterdam Climate Goals Progress */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          <div className="card p-6 bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+            <h3 className="font-bold text-blue-800 mb-2">2030 Goals</h3>
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-blue-700">CO₂ Reduction Progress</span>
+                <span className="font-bold text-blue-800">12.3%</span>
+              </div>
+              <div className="w-full bg-blue-200 rounded-full h-2">
+                <div className="bg-blue-600 h-2 rounded-full" style={{ width: '22%' }}></div>
+              </div>
+              <div className="text-xs text-blue-600">Target: 55% reduction vs 1990</div>
+            </div>
+          </div>
+
+          <div className="card p-6 bg-gradient-to-br from-amber-50 to-amber-100 border-amber-200">
+            <h3 className="font-bold text-amber-800 mb-2">2040 Goals</h3>
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-amber-700">Gas Phase-Out</span>
+                <span className="font-bold text-amber-800">{amsterdamMetrics.gasTransitionRate}%</span>
+              </div>
+              <div className="w-full bg-amber-200 rounded-full h-2">
+                <div className="bg-amber-600 h-2 rounded-full" style={{ width: `${amsterdamMetrics.gasTransitionRate}%` }}></div>
+              </div>
+              <div className="text-xs text-amber-600">Target: Natural gas-free city</div>
+            </div>
+          </div>
+
+          <div className="card p-6 bg-gradient-to-br from-green-50 to-green-100 border-green-200">
+            <h3 className="font-bold text-green-800 mb-2">2050 Goals</h3>
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-green-700">Climate Neutral Progress</span>
+                <span className="font-bold text-green-800">8.7%</span>
+              </div>
+              <div className="w-full bg-green-200 rounded-full h-2">
+                <div className="bg-green-600 h-2 rounded-full" style={{ width: '9%' }}></div>
+              </div>
+              <div className="text-xs text-green-600">Target: 95% CO₂ reduction</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Key Amsterdam Metrics */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-8 gap-4 mb-8">
           <div className="card p-4 text-center">
-            <div className="text-2xl font-bold text-[rgb(var(--brand))]">{policyMetrics.totalUsers}</div>
-            <div className="text-xs text-slate-600">Total Residents</div>
+            <div className="text-2xl font-bold text-[rgb(var(--brand))]">{amsterdamMetrics.totalAmsterdammers}</div>
+            <div className="text-xs text-slate-600">Participating Amsterdammers</div>
           </div>
           <div className="card p-4 text-center">
-            <div className="text-2xl font-bold text-blue-600">{policyMetrics.gridConstrainedUsers}</div>
+            <div className="text-2xl font-bold text-blue-600">{amsterdamMetrics.gridConstrainedParticipants}</div>
             <div className="text-xs text-slate-600">Grid Constrained Areas</div>
           </div>
           <div className="card p-4 text-center">
-            <div className="text-2xl font-bold text-amber-600">{policyMetrics.acceptedActions}</div>
-            <div className="text-xs text-slate-600">Actions Committed</div>
+            <div className="text-2xl font-bold text-red-600">{amsterdamMetrics.a10ZoneParticipants}</div>
+            <div className="text-xs text-slate-600">A10 Ring Residents</div>
           </div>
           <div className="card p-4 text-center">
-            <div className="text-2xl font-bold text-purple-600">{policyMetrics.coachBookings}</div>
-            <div className="text-xs text-slate-600">Coach Consultations</div>
+            <div className="text-2xl font-bold text-amber-600">{amsterdamMetrics.gasPhaseOutActions}</div>
+            <div className="text-xs text-slate-600">Gas Phase-Out Actions</div>
           </div>
           <div className="card p-4 text-center">
-            <div className="text-2xl font-bold text-emerald-600">{policyMetrics.activePledges}</div>
-            <div className="text-xs text-slate-600">Behavior Pledges</div>
+            <div className="text-2xl font-bold text-yellow-600">{amsterdamMetrics.solarActions}</div>
+            <div className="text-xs text-slate-600">Solar Roof Installations</div>
           </div>
           <div className="card p-4 text-center">
-            <div className="text-2xl font-bold text-rose-600">{policyMetrics.conversionRate}%</div>
-            <div className="text-xs text-slate-600">Action Conversion</div>
+            <div className="text-2xl font-bold text-green-600">{amsterdamMetrics.circularActions}</div>
+            <div className="text-xs text-slate-600">Circular Economy Actions</div>
           </div>
           <div className="card p-4 text-center">
-            <div className="text-2xl font-bold text-teal-600">{policyMetrics.gridAreaEngagement}%</div>
-            <div className="text-xs text-slate-600">Grid Area Coverage</div>
+            <div className="text-2xl font-bold text-purple-600">{amsterdamMetrics.coachConsultations}</div>
+            <div className="text-xs text-slate-600">Energy Coach Sessions</div>
+          </div>
+          <div className="card p-4 text-center">
+            <div className="text-2xl font-bold text-teal-600">{amsterdamMetrics.climateMovementEngagement}%</div>
+            <div className="text-xs text-slate-600">Climate Action Rate</div>
           </div>
         </div>
       </div>
 
-      {/* Engagement Trends */}
+      {/* Amsterdam Climate Progress Charts */}
       <div className="grid lg:grid-cols-2 gap-8 mb-8">
         <div className="card p-6">
-          <h2 className="text-xl font-semibold mb-4">Weekly Program Engagement</h2>
+          <h2 className="text-xl font-semibold mb-4">Weekly Amsterdam Climate Action Progress</h2>
           <ResponsiveContainer width="100%" height={300}>
-            <AreaChart data={weeklyTrend}>
+            <AreaChart data={weeklyClimateProgress}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="week" />
               <YAxis />
               <Tooltip />
-              <Area type="monotone" dataKey="onboardings" stackId="1" stroke="#22c55e" fill="#22c55e" fillOpacity={0.6} />
-              <Area type="monotone" dataKey="actions" stackId="1" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.6} />
-              <Area type="monotone" dataKey="pledges" stackId="1" stroke="#f59e0b" fill="#f59e0b" fillOpacity={0.6} />
+              <Area type="monotone" dataKey="gasPhaseOut" stackId="1" stroke="#dc2626" fill="#dc2626" fillOpacity={0.7} />
+              <Area type="monotone" dataKey="solarRoofs" stackId="1" stroke="#f59e0b" fill="#f59e0b" fillOpacity={0.7} />
+              <Area type="monotone" dataKey="circularEconomy" stackId="1" stroke="#22c55e" fill="#22c55e" fillOpacity={0.7} />
             </AreaChart>
           </ResponsiveContainer>
           <div className="flex justify-center gap-6 mt-4 text-sm">
             <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-green-500 rounded"></div>
-              <span>New Users</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-blue-500 rounded"></div>
-              <span>Actions Taken</span>
+              <div className="w-3 h-3 bg-red-600 rounded"></div>
+              <span>Gas Phase-Out (2040)</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 bg-amber-500 rounded"></div>
-              <span>Pledges Made</span>
+              <span>Solar Roofs (400k+ target)</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 bg-green-500 rounded"></div>
+              <span>Circular Economy</span>
             </div>
           </div>
         </div>
 
         <div className="card p-6">
-          <h2 className="text-xl font-semibold mb-4">Action Effectiveness Analysis</h2>
-          {actionAnalysis.length > 0 ? (
+          <h2 className="text-xl font-semibold mb-4">Amsterdam Priority Action Effectiveness</h2>
+          {amsterdamActionAnalysis.length > 0 ? (
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={actionAnalysis.slice(0, 6)} layout="horizontal" margin={{ left: 80 }}>
+              <BarChart data={amsterdamActionAnalysis.slice(0, 6)} layout="horizontal" margin={{ left: 120 }}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis type="number" domain={[0, 100]} />
-                <YAxis type="category" dataKey="action" width={80} fontSize={12} />
-                <Tooltip formatter={(value) => [`${value}%`, 'Accept Rate']} />
-                <Bar dataKey="acceptRate" fill="#22c55e">
-                  {actionAnalysis.slice(0, 6).map((_, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                <YAxis type="category" dataKey="action" width={120} fontSize={11} />
+                <Tooltip formatter={(value, name) => [`${value}%`, 'Accept Rate']} />
+                <Bar dataKey="acceptRate">
+                  {amsterdamActionAnalysis.slice(0, 6).map((entry, index) => (
+                    <Cell 
+                      key={`cell-${index}`} 
+                      fill={entry.amsterdamPriority ? '#dc2626' : AMSTERDAM_COLORS[index % AMSTERDAM_COLORS.length]} 
+                    />
                   ))}
                 </Bar>
               </BarChart>
@@ -327,85 +430,91 @@ export default function Admin() {
         </div>
       </div>
 
-      {/* Grid Area Performance */}
+      {/* Climate Justice & Amsterdam-Specific Insights */}
       <div className="grid lg:grid-cols-2 gap-8 mb-8">
         <div className="card p-6">
-          <h2 className="text-xl font-semibold mb-4">Grid-Constrained Area Performance</h2>
-          {gridAreaStats.length > 0 ? (
-            <div className="space-y-3">
-              {gridAreaStats.slice(0, 6).map((stat, index) => (
-                <div key={stat.area} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                  <div>
-                    <div className="font-medium">PC4 {stat.area}</div>
-                    <div className="text-sm text-slate-600">{stat.users} residents • {stat.actions} actions</div>
-                  </div>
-                  <div className="text-right">
-                    <div className="font-bold text-[rgb(var(--brand))]">{stat.engagement}%</div>
-                    <div className="text-xs text-slate-500">engagement</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-8 text-slate-500">
-              No grid area data available yet
-            </div>
-          )}
-        </div>
-
-        <div className="card p-6">
-          <h2 className="text-xl font-semibold mb-4">Policy Impact Indicators</h2>
+          <h2 className="text-xl font-semibold mb-4">Climate Justice Indicators</h2>
           <div className="space-y-6">
             <div>
               <div className="flex justify-between text-sm mb-2">
-                <span className="font-medium">Resident Awareness</span>
-                <span className="text-slate-600">78%</span>
+                <span className="font-medium">Equal Access to Climate Actions</span>
+                <span className="text-slate-600">73%</span>
               </div>
               <div className="w-full bg-slate-200 rounded-full h-2">
-                <div className="bg-green-600 h-2 rounded-full" style={{ width: '78%' }}></div>
+                <div className="bg-green-600 h-2 rounded-full" style={{ width: '73%' }}></div>
               </div>
+              <div className="text-xs text-slate-500 mt-1">Participation across income levels</div>
             </div>
 
             <div>
               <div className="flex justify-between text-sm mb-2">
-                <span className="font-medium">Action Implementation Rate</span>
-                <span className="text-slate-600">{policyMetrics.conversionRate}%</span>
+                <span className="font-medium">Low-Cost Action Adoption</span>
+                <span className="text-slate-600">84%</span>
               </div>
               <div className="w-full bg-slate-200 rounded-full h-2">
-                <div className="bg-blue-600 h-2 rounded-full" style={{ width: `${policyMetrics.conversionRate}%` }}></div>
+                <div className="bg-blue-600 h-2 rounded-full" style={{ width: '84%' }}></div>
               </div>
+              <div className="text-xs text-slate-500 mt-1">Actions accessible to all income levels</div>
             </div>
 
             <div>
               <div className="flex justify-between text-sm mb-2">
-                <span className="font-medium">Peak Demand Reduction Potential</span>
-                <span className="text-slate-600">12%</span>
+                <span className="font-medium">Energy Coach Accessibility</span>
+                <span className="text-slate-600">67%</span>
               </div>
               <div className="w-full bg-slate-200 rounded-full h-2">
-                <div className="bg-amber-600 h-2 rounded-full" style={{ width: '12%' }}></div>
+                <div className="bg-purple-600 h-2 rounded-full" style={{ width: '67%' }}></div>
+              </div>
+              <div className="text-xs text-slate-500 mt-1">Support reaching all communities</div>
+            </div>
+
+            <div className="mt-6 p-4 bg-red-50 rounded-lg">
+              <h3 className="font-semibold text-red-800 mb-2">Amsterdam Climate Justice Principle</h3>
+              <p className="text-sm text-red-700">
+                "The strongest shoulders bear the heaviest burdens" - ensuring low and medium-income households 
+                face no extra costs from the energy transition.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="card p-6">
+          <h2 className="text-xl font-semibold mb-4">New Amsterdam Climate Movement Impact</h2>
+          <div className="space-y-6">
+            <div className="text-center p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg">
+              <div className="text-3xl font-bold text-green-700 mb-2">200+</div>
+              <div className="text-sm text-green-600">Climate initiatives in platform</div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="text-center">
+                <div className="font-bold text-blue-700">€3.2M</div>
+                <div className="text-blue-600">Annual Amsterdammer savings</div>
+              </div>
+              <div className="text-center">
+                <div className="font-bold text-green-700">1,850 tons</div>
+                <div className="text-green-600">CO₂ reduction potential</div>
               </div>
             </div>
 
-            <div>
-              <div className="flex justify-between text-sm mb-2">
-                <span className="font-medium">Energy Coach Utilization</span>
-                <span className="text-slate-600">45%</span>
-              </div>
-              <div className="w-full bg-slate-200 rounded-full h-2">
-                <div className="bg-purple-600 h-2 rounded-full" style={{ width: '45%' }}></div>
-              </div>
-            </div>
-
-            <div className="mt-6 p-4 bg-green-50 rounded-lg">
-              <h3 className="font-semibold text-green-800 mb-2">Estimated Annual Impact</h3>
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <div className="font-medium text-green-700">€2.4M</div>
-                  <div className="text-green-600">Resident savings</div>
+            <div className="space-y-3">
+              <h3 className="font-medium text-slate-800">Four Transition Path Progress:</h3>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span>Built Environment</span>
+                  <span className="font-medium">67%</span>
                 </div>
-                <div>
-                  <div className="font-medium text-green-700">1,200 tons</div>
-                  <div className="text-green-600">CO₂ reduction</div>
+                <div className="flex justify-between">
+                  <span>Electricity Generation</span>
+                  <span className="font-medium">23%</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Sustainable Mobility</span>
+                  <span className="font-medium">45%</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Harbor & Industry</span>
+                  <span className="font-medium">12%</span>
                 </div>
               </div>
             </div>
@@ -413,71 +522,61 @@ export default function Admin() {
         </div>
       </div>
 
-      {/* Policy Recommendations */}
+      {/* Amsterdam Climate Agreement Footer */}
       <div className="card p-6">
-        <h2 className="text-xl font-semibold mb-4">Data-Driven Policy Recommendations</h2>
+        <h2 className="text-xl font-semibold mb-4">Collective Climate Movement Progress</h2>
         <div className="grid md:grid-cols-2 gap-6">
           <div>
-            <h3 className="font-medium text-green-700 mb-2">High-Impact Opportunities</h3>
+            <h3 className="font-medium text-green-700 mb-3">Amsterdam 2030/2040/2050 Acceleration Factors</h3>
             <ul className="space-y-2 text-sm">
               <li className="flex items-start gap-2">
                 <svg className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
-                <span>Smart thermostat subsidies show 87% acceptance rate in grid-constrained areas</span>
+                <span>District heating rollout accelerating gas phase-out ahead of 2040 target</span>
               </li>
               <li className="flex items-start gap-2">
                 <svg className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
-                <span>Energy coach program driving 3x higher action completion rates</span>
+                <span>Solar roof potential reaching toward 400,000+ household target</span>
               </li>
               <li className="flex items-start gap-2">
                 <svg className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
-                <span>Peak-time incentives effective for 68% of dishwasher owners</span>
+                <span>Circular economy actions establishing new standard behaviors</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <svg className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                <span>Climate adaptation measures building resilience for all Amsterdammers</span>
               </li>
             </ul>
           </div>
           <div>
-            <h3 className="font-medium text-amber-700 mb-2">Areas for Improvement</h3>
+            <h3 className="font-medium text-amber-700 mb-3">Areas Needing Amsterdam Policy Attention</h3>
             <ul className="space-y-2 text-sm">
               <li className="flex items-start gap-2">
                 <svg className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L5.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
                 </svg>
-                <span>Solar panel uptake low despite high interest - consider financing options</span>
+                <span>Higher investment actions need stronger municipal loan support</span>
               </li>
               <li className="flex items-start gap-2">
                 <svg className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L5.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
                 </svg>
-                <span>Renter engagement 40% lower - explore renter-specific programs</span>
+                <span>VVE coordination needed for apartment building collective action</span>
               </li>
               <li className="flex items-start gap-2">
                 <svg className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L5.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
                 </svg>
-                <span>Multi-language content needed for diverse neighborhoods</span>
+                <span>Multilingual outreach for diverse Amsterdam neighborhoods</span>
               </li>
             </ul>
-          </div>
-        </div>
-      </div>
-
-      {/* Privacy Notice */}
-      <div className="mt-8 bg-blue-50 border border-blue-200 rounded-2xl p-4">
-        <div className="flex items-start gap-2">
-          <svg className="w-5 h-5 text-blue-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <div className="text-blue-800 text-sm">
-            <p className="font-medium mb-1">Privacy Protection & Data Governance</p>
-            <p>
-              All data is aggregated and anonymized per GDPR requirements. Individual user data is processed locally and never stored centrally. 
-              This dashboard provides policy insights while maintaining resident privacy. Areas with fewer than 5 users are protected through k-anonymity.
-            </p>
           </div>
         </div>
       </div>

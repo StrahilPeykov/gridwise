@@ -1,4 +1,3 @@
-// src/store.ts
 import { create } from 'zustand';
 import type { Recommendation, TelemetryEvent, UserProfile } from './types';
 
