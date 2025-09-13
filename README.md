@@ -67,3 +67,19 @@ export default tseslint.config([
   },
 ])
 ```
+
+## Admin Map Overlay (PC4)
+
+The Admin page includes an actual map (Leaflet + OpenStreetMap) to visualize adoption vs. non‑adoption by PC4.
+
+- Basemap is loaded via Leaflet CDN; no additional npm install required.
+- Overlays are anonymized PC4 aggregates computed client-side from telemetry events.
+
+Overlay data sources (first found is used):
+
+- `public/pc4.geojson`: FeatureCollection with polygons. Each feature should include a PC4 code under one of: `properties.pc4`, `properties.PC4`, `properties.postcode`, or `properties.PC4_CODE`.
+- `src/data/pc4_centroids.json`: JSON object mapping PC4 to `[lat, lng]` (WGS84), e.g. `{ "1012": [52.373, 4.893] }`.
+
+If neither file exists, the map renders without overlays (basemap only).
+
+Privacy: Only PC4 codes and aggregated counts are used. No addresses or personal identifiers are processed.

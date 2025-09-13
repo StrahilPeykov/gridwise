@@ -3,6 +3,8 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { useApp } from '../store';
 import { useTranslation } from '../i18n';
 import constrainedAreas from '../data/grid_constrained_pc4.json';
+import actions from '../data/actions.json';
+import Pc4LeafletMap from '../components/Pc4LeafletMap';
 
 // Enhanced policy insights for Amsterdam
 const policyInsights = [
@@ -57,6 +59,8 @@ export default function EnhancedAdmin() {
   const { t } = useTranslation(profile?.lang || 'en');
   const [selectedInsight, setSelectedInsight] = useState<string | null>(null);
   const [mapView, setMapView] = useState<'participation' | 'barriers' | 'success'>('participation');
+  const [selectedActionId, setSelectedActionId] = useState<string>('all');
+  const [barrierFilter, setBarrierFilter] = useState<string>('all');
 
   // Enhanced mock data generation for demo
   const amsterdamAnalytics = useMemo(() => {
@@ -129,6 +133,152 @@ export default function EnhancedAdmin() {
       percentage: total ? Math.round((count / total) * 100) : 0
     }));
   }, [events]);
+
+  // Aggregate anonymized usage by PC4 and action from events
+  const usageByPc4 = useMemo(() => {
+    type ActionAgg = { willDo: number; willNotDo: number; reasons: Record<string, number> };
+    const map = new Map<string, { pc4: string; actions: Record<string, ActionAgg>; totalWillDo: number; totalWillNotDo: number }>();
+
+    const normReason = (r: unknown) => (r ? String(r) : 'other');
+
+    events.forEach((e) => {
+      if (e.event !== 'action_status_changed') return;
+      const p = (e.payload || {}) as any;
+      const pc4 = e.pc4;
+      const actionId = p.actionId as string | undefined;
+      const status = p.status as string | undefined;
+      if (!pc4 || !actionId || !status) return;
+
+      if (!map.has(pc4)) map.set(pc4, { pc4, actions: {}, totalWillDo: 0, totalWillNotDo: 0 });
+      const entry = map.get(pc4)!;
+      if (!entry.actions[actionId]) entry.actions[actionId] = { willDo: 0, willNotDo: 0, reasons: {} };
+      const aa = entry.actions[actionId];
+
+      if (status === 'will-do') {
+        aa.willDo += 1;
+        entry.totalWillDo += 1;
+      } else if (status === 'will-not-do') {
+        aa.willNotDo += 1;
+        entry.totalWillNotDo += 1;
+        const r = normReason(p.feedback);
+        aa.reasons[r] = (aa.reasons[r] || 0) + 1;
+      }
+    });
+
+    return map;
+  }, [events]);
+
+  // Map coverage: union of known districts, constrained areas, and any PC4 in events
+  const pc4List = useMemo(() => {
+    const set = new Set<string>();
+    amsterdamAnalytics.districtInsights.forEach((d) => set.add(d.pc4));
+    constrainedAreas.forEach((pc4) => set.add(pc4));
+    events.forEach((e) => set.add(e.pc4));
+    return Array.from(set).sort();
+  }, [events, amsterdamAnalytics.districtInsights]);
+
+  // Filter options
+  const actionOptions = useMemo(() => [{ id: 'all', title: 'All actions' }, ...actions.map((a) => ({ id: a.id, title: a.title }))], []);
+  const barrierOptions = useMemo(() => {
+    const set = new Set<string>();
+    usageByPc4.forEach((entry) => {
+      Object.values(entry.actions).forEach((aa) => Object.keys(aa.reasons).forEach((r) => set.add(r)));
+    });
+    const pretty = (s: string) => s.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+    return ['all', ...Array.from(set)].map((r) => ({ id: r, title: r === 'all' ? 'All reasons' : pretty(r) }));
+  }, [usageByPc4]);
+
+  // Dataset for the map view
+  const mapDataset = useMemo(() => {
+    const hasEventUsage = (() => {
+      let sum = 0;
+      usageByPc4.forEach((e) => (sum += e.totalWillDo + e.totalWillNotDo));
+      return sum > 0;
+    })();
+
+    return pc4List.map((pc4) => {
+      const entry = usageByPc4.get(pc4);
+      let willDo = 0;
+      let willNotDo = 0;
+      let reasons: Record<string, number> = {};
+      if (entry && hasEventUsage) {
+        if (selectedActionId === 'all') {
+          Object.values(entry.actions).forEach((aa) => {
+            willDo += aa.willDo;
+            willNotDo += aa.willNotDo;
+            Object.entries(aa.reasons).forEach(([r, c]) => (reasons[r] = (reasons[r] || 0) + c));
+          });
+        } else {
+          const aa = entry.actions[selectedActionId];
+          if (aa) {
+            willDo = aa.willDo;
+            willNotDo = aa.willNotDo;
+            reasons = aa.reasons;
+          }
+        }
+      } else {
+        // Fallback: synthesize from district insights to avoid empty map
+        const di = amsterdamAnalytics.districtInsights.find((d) => d.pc4 === pc4);
+        if (di) {
+          const total = di.participants || 0;
+          willDo = Math.round((di.completionRate / 100) * total);
+          willNotDo = Math.max(0, total - willDo);
+          reasons = {};
+        }
+      }
+
+      const total = willDo + willNotDo;
+      const adoptionRate = total > 0 ? willDo / total : 0;
+      const barrierRate = total > 0 ? willNotDo / total : 0;
+      const topReason = Object.entries(reasons).sort((a, b) => b[1] - a[1])[0]?.[0];
+      const topReasonPretty = topReason ? topReason.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()) : '—';
+
+      let reasonMatchRate = 0;
+      if (barrierFilter !== 'all') {
+        const match = reasons[barrierFilter] || 0;
+        reasonMatchRate = total > 0 ? match / total : 0;
+      }
+
+      return { pc4, adoptionRate, barrierRate, reasonMatchRate, willDo, willNotDo, topReason: topReasonPretty };
+    });
+  }, [pc4List, usageByPc4, selectedActionId, barrierFilter]);
+
+  // Lightweight AI-style insights (heuristics based on aggregates)
+  const aiStyleInsights = useMemo(() => {
+    const lowAdoption = mapDataset.filter((d) => d.adoptionRate > 0 || d.barrierRate > 0).filter((d) => d.adoptionRate < 0.35);
+    const highBarriers = mapDataset.filter((d) => d.barrierRate > 0.5);
+    const districtMap = new Map(amsterdamAnalytics.districtInsights.map((d) => [d.pc4, d]));
+    const notes: string[] = [];
+
+    if (selectedActionId !== 'all') {
+      const actionTitle = actions.find((a) => a.id === selectedActionId)?.title || selectedActionId;
+      notes.push(`Focus action: ${actionTitle}`);
+    }
+    if (lowAdoption.length) notes.push(`Low adoption in PC4: ${lowAdoption.map((d) => d.pc4).join(', ')}`);
+    if (highBarriers.length) notes.push(`High non-adoption in PC4: ${highBarriers.map((d) => d.pc4).join(', ')}`);
+
+    const lowIncomeOverlap = lowAdoption
+      .map((d) => districtMap.get(d.pc4))
+      .filter((x) => x && String(x.avgIncome).toLowerCase().includes('low')).length;
+    if (lowIncomeOverlap > 0) {
+      notes.push('Pattern: Lower-income districts show lower adoption. Suggest boosting subsidy awareness and financing (Warmtefonds).');
+    }
+
+    const constrainedOverlap = mapDataset.filter((d) => constrainedAreas.includes(d.pc4) && d.adoptionRate < 0.4).length;
+    if (constrainedOverlap > 0) {
+      notes.push('Pattern: Grid-constrained areas could benefit from peak-relief actions and incentives (e.g., smart thermostats).');
+    }
+
+    if (barrierFilter !== 'all') {
+      const pretty = barrierFilter.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+      notes.push(`Barrier focus: "${pretty}" appears frequently in selected areas.`);
+    } else {
+      const globalTop = derivedTopBarriers.slice().sort((a, b) => b.count - a.count)[0];
+      if (globalTop) notes.push(`Top barrier overall: ${globalTop.barrier}`);
+    }
+
+    return notes.slice(0, 5);
+  }, [mapDataset, amsterdamAnalytics.districtInsights, derivedTopBarriers, selectedActionId, barrierFilter]);
 
   // Additional metrics used in the goals section
   const amsterdamMetrics = useMemo(() => ({
@@ -388,6 +538,61 @@ export default function EnhancedAdmin() {
             </button>
           </div>
         </div>
+
+        {/* Map controls */}
+        <div className="flex flex-wrap items-center gap-3 mb-4">
+          <label className="text-sm text-slate-600">Action</label>
+          <select
+            className="text-sm border rounded px-2 py-1"
+            value={selectedActionId}
+            onChange={(e) => setSelectedActionId(e.target.value)}
+          >
+            {actionOptions.map((opt) => (
+              <option key={opt.id} value={opt.id}>{opt.title}</option>
+            ))}
+          </select>
+          {mapView === 'barriers' && (
+            <>
+              <label className="text-sm text-slate-600">Reason</label>
+              <select
+                className="text-sm border rounded px-2 py-1"
+                value={barrierFilter}
+                onChange={(e) => setBarrierFilter(e.target.value)}
+              >
+                {barrierOptions.map((opt) => (
+                  <option key={opt.id} value={opt.id}>{opt.title}</option>
+                ))}
+              </select>
+            </>
+          )}
+        </div>
+
+        {/* PC4 map (Leaflet) */}
+        <div className="mb-6">
+          <Pc4LeafletMap
+            data={mapDataset.map((d) => ({
+              pc4: d.pc4,
+              value: mapView === 'participation' ? d.adoptionRate : (mapView === 'barriers' ? (barrierFilter === 'all' ? d.barrierRate : d.reasonMatchRate) : d.adoptionRate),
+              meta: d,
+            }))}
+            mode={mapView}
+          />
+        </div>
+
+        {/* AI-style insights summary (anonymized, heuristic) */}
+        {aiStyleInsights.length > 0 && (
+          <div className="mb-6 p-4 bg-blue-50 rounded border border-blue-200">
+            <div className="font-semibold text-blue-800 mb-2">Usage Pattern Insights</div>
+            <ul className="list-disc list-inside text-sm text-blue-900 space-y-1">
+              {aiStyleInsights.map((note, i) => (
+                <li key={i}>{note}</li>
+              ))}
+            </ul>
+            <div className="text-xs text-blue-700 mt-2">
+              Aggregated at PC4 level. No personal data processed.
+            </div>
+          </div>
+        )}
 
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
