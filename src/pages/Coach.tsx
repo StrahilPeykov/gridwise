@@ -68,7 +68,7 @@ export default function Coach() {
               <div><strong>Priority:</strong> {profile.comfortPriority}</div>
               <div><strong>Laundry/week:</strong> {profile.habits.laundryPerWeek}</div>
               <div><strong>Dishwasher:</strong> {profile.habits.dishwasher ? 'Yes' : 'No'}</div>
-              <div><strong>Night setback:</strong> {profile.habits.nightSetback ? 'Yes' : 'No'}</div>
+              <div><strong>Thermostat:</strong> {profile.habits.nightSetback ? 'Yes' : 'No'}</div>
             </div>
           </div>
         </div>
