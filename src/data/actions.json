@@ -1,0 +1,198 @@
+[
+  {
+    "id": "draught-proofing",
+    "category": "low-cost",
+    "title": "Seal drafts & fit door brushes",
+    "summary": "Quick DIY to cut heat loss around doors and windows.",
+    "audience": ["renter", "owner", "vve"],
+    "requires": {},
+    "costRangeEUR": [20, 50],
+    "annualSavingsEUR": [60, 120],
+    "annualCO2kg": [40, 90],
+    "peakRelief": "medium",
+    "feasibility": "easy",
+    "renterFriendly": true,
+    "subsidies": [
+      { 
+        "code": "Municipal", 
+        "note": "Check small measures vouchers" 
+      }
+    ],
+    "howTo": [
+      "Buy 2x door brush, 1x window foam strip", 
+      "Install in 30–45 min"
+    ],
+    "evidence": ["Milieu Centraal"]
+  },
+  {
+    "id": "radiator-foil",
+    "category": "low-cost",
+    "title": "Install radiator foil",
+    "summary": "Reflect heat back into rooms on external walls.",
+    "audience": ["renter", "owner", "vve"],
+    "requires": {},
+    "costRangeEUR": [15, 30],
+    "annualSavingsEUR": [20, 50],
+    "annualCO2kg": [10, 30],
+    "peakRelief": "low",
+    "feasibility": "easy",
+    "renterFriendly": true,
+    "subsidies": [],
+    "howTo": [
+      "Cut to size", 
+      "Apply behind radiators on outside walls"
+    ],
+    "evidence": ["Milieu Centraal"]
+  },
+  {
+    "id": "hybrid-heat-pump-triage",
+    "category": "medium",
+    "title": "Hybrid heat pump: am I a match?",
+    "summary": "Simple triage for homes with gas boilers.",
+    "audience": ["owner", "vve"],
+    "requires": { 
+      "heating": "gas-boiler" 
+    },
+    "costRangeEUR": [2500, 4500],
+    "annualSavingsEUR": [200, 500],
+    "annualCO2kg": [300, 800],
+    "peakRelief": "high",
+    "feasibility": "moderate",
+    "renterFriendly": false,
+    "subsidies": [
+      { 
+        "code": "ISDE", 
+        "note": "Investment subsidy for (hybrid) heat pump" 
+      },
+      { 
+        "code": "Warmtefonds", 
+        "note": "0% interest possible under income threshold" 
+      }
+    ],
+    "howTo": [
+      "Check outdoor unit mounting", 
+      "Verify radiators & insulation"
+    ],
+    "evidence": ["RVO", "Municipal"]
+  },
+  {
+    "id": "smart-thermostat",
+    "category": "low-cost",
+    "title": "Install smart thermostat",
+    "summary": "Automatically optimize heating schedule and reduce peak demand.",
+    "audience": ["renter", "owner", "vve"],
+    "requires": {},
+    "costRangeEUR": [80, 200],
+    "annualSavingsEUR": [50, 150],
+    "annualCO2kg": [30, 80],
+    "peakRelief": "high",
+    "feasibility": "easy",
+    "renterFriendly": true,
+    "subsidies": [
+      { 
+        "code": "Municipal", 
+        "note": "Some municipalities offer smart home vouchers" 
+      }
+    ],
+    "howTo": [
+      "Choose compatible model", 
+      "Install or hire electrician",
+      "Configure heating schedule"
+    ],
+    "evidence": ["Milieu Centraal", "RVO"]
+  },
+  {
+    "id": "led-lighting",
+    "category": "low-cost",
+    "title": "Replace with LED lighting",
+    "summary": "Reduce electricity consumption and heat generation.",
+    "audience": ["renter", "owner", "vve"],
+    "requires": {},
+    "costRangeEUR": [30, 80],
+    "annualSavingsEUR": [40, 100],
+    "annualCO2kg": [20, 50],
+    "peakRelief": "low",
+    "feasibility": "easy",
+    "renterFriendly": true,
+    "subsidies": [],
+    "howTo": [
+      "Calculate number of bulbs needed", 
+      "Replace existing bulbs",
+      "Consider dimmer compatibility"
+    ],
+    "evidence": ["Milieu Centraal"]
+  },
+  {
+    "id": "window-insulation-film",
+    "category": "low-cost",
+    "title": "Apply window insulation film",
+    "summary": "Add temporary insulation layer to single-glazed windows.",
+    "audience": ["renter", "owner", "vve"],
+    "requires": {},
+    "costRangeEUR": [25, 60],
+    "annualSavingsEUR": [80, 160],
+    "annualCO2kg": [50, 120],
+    "peakRelief": "medium",
+    "feasibility": "easy",
+    "renterFriendly": true,
+    "subsidies": [],
+    "howTo": [
+      "Measure window dimensions", 
+      "Apply film carefully to avoid bubbles",
+      "Seal edges properly"
+    ],
+    "evidence": ["Milieu Centraal"]
+  },
+  {
+    "id": "solar-panels",
+    "category": "major-investment",
+    "title": "Install solar panels",
+    "summary": "Generate renewable electricity and reduce grid dependency.",
+    "audience": ["owner", "vve"],
+    "requires": {},
+    "costRangeEUR": [5000, 12000],
+    "annualSavingsEUR": [600, 1200],
+    "annualCO2kg": [800, 1500],
+    "peakRelief": "high",
+    "feasibility": "pro",
+    "renterFriendly": false,
+    "subsidies": [
+      { 
+        "code": "ISDE", 
+        "note": "Investment subsidy for solar installations" 
+      }
+    ],
+    "howTo": [
+      "Roof inspection and structural assessment", 
+      "Get quotes from certified installers",
+      "Apply for permits and subsidies"
+    ],
+    "evidence": ["RVO", "Municipal"]
+  },
+  {
+    "id": "insulation-roof",
+    "category": "medium",
+    "title": "Improve roof insulation",
+    "summary": "Major heat loss reduction through better roof insulation.",
+    "audience": ["owner", "vve"],
+    "requires": {},
+    "costRangeEUR": [1500, 3500],
+    "annualSavingsEUR": [300, 600],
+    "annualCO2kg": [200, 400],
+    "peakRelief": "medium",
+    "feasibility": "moderate",
+    "renterFriendly": false,
+    "subsidies": [
+      { 
+        "code": "ISDE", 
+        "note": "Insulation subsidy available" 
+      }
+    ],
+    "howTo": [
+      "Assess current insulation level", 
+      "Choose appropriate insulation material",
+      "Hire certified installer"
+    ],
+    "evidence": ["RVO", "Milieu Centraal"]
+  }
+]

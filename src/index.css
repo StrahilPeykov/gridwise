@@ -1,0 +1,40 @@
+﻿@import "tailwindcss";
+
+/* Theme tokens */
+:root {
+  --brand: 34 197 94;        /* Tailwind green-500 */
+  --brand-600: 22 163 74;    /* green-600 */
+  --brand-700: 21 128 61;    /* green-700 */
+}
+
+@layer base {
+  html, body, #root {
+    height: 100%;
+  }
+  body {
+    @apply antialiased text-slate-800;
+    /* Flat background, no gradient */
+    background-color: #f8fafc;
+  }
+  ::selection {
+    background-color: rgb(var(--brand) / 0.18);
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-white rounded-2xl border border-slate-200 shadow-sm;
+  }
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-2xl bg-[rgb(var(--brand))] text-white px-5 py-3 font-medium shadow-lg hover:shadow-xl transition-shadow hover:bg-[rgb(var(--brand-600))];
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-300 bg-white px-5 py-3 font-medium hover:bg-slate-50 transition-colors;
+  }
+  .nav-pill {
+    @apply rounded-full px-3 py-1 text-sm hover:bg-slate-100 transition-colors;
+  }
+  .badge {
+    @apply inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs border font-medium; 
+  }
+}
