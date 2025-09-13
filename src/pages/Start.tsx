@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useApp } from '../store';
 import { useTranslation } from '../i18n';
 import { scoreActions } from '../scoring';
-import type { UserProfile } from '../types';
+import type { PriorityKey, UserProfile } from '../types';
+import { prefillFromExternalSources, extractInfoFromUploads } from '../services/prefill';
 
 export default function Start() {
   const navigate = useNavigate();
@@ -13,18 +14,18 @@ export default function Start() {
   const [autoFillData, setAutoFillData] = useState<any>(null);
   const [dataConsent, setDataConsent] = useState<'none' | 'temporary' | 'full'>('none');
 
-  // Mock auto-fill data (in real implementation, this would come from Kadaster/Municipality APIs)
-  const mockAutoFillData = {
-    energyLabel: 'D',
-    buildYear: 1978,
-    homeSize: '85m²',
-    roofSuitability: 'Good for 8 panels',
-    districtHeatingAvailable: false,
-    gridConstrained: true
+  const handleAutoFill = async () => {
+    const pc4Input = document.querySelector('input[name="pc4"]') as HTMLInputElement | null;
+    const pc4 = pc4Input?.value?.trim() || '';
+    const data = await prefillFromExternalSources(pc4);
+    setAutoFillData(prev => ({ ...prev, ...data }));
   };
 
-  const handleAutoFill = () => {
-    setAutoFillData(mockAutoFillData);
+  const handleAIExtract = async () => {
+    const energyLabelDoc = (document.querySelector('input[name="energyLabelDoc"]') as HTMLInputElement | null)?.files?.[0] || null;
+    const floorplanImage = (document.querySelector('input[name="floorplanImage"]') as HTMLInputElement | null)?.files?.[0] || null;
+    const extracted = await extractInfoFromUploads({ energyLabelDoc, floorplanImage });
+    setAutoFillData((prev: any) => ({ ...prev, ...extracted }));
   };
 
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -37,6 +38,18 @@ export default function Start() {
     if (form.get('priority-comfort')) priorities.push('warmer-home');
     if (form.get('priority-climate')) priorities.push('climate-impact');
     if (form.get('priority-grid')) priorities.push('grid-stability');
+
+    // Priority ratings 1–5 (optional)
+    const ratingsMap: Record<PriorityKey, number> = {
+      'save-money': Number(form.get('rating-money') || 3),
+      'warmer-home': Number(form.get('rating-comfort') || 3),
+      'climate-impact': Number(form.get('rating-climate') || 3),
+      'grid-stability': Number(form.get('rating-grid') || 3)
+    } as const as any;
+
+    // Derive primary comfortPriority from highest-rated key
+    const topPriority = (Object.keys(ratingsMap) as PriorityKey[])
+      .sort((a, b) => (ratingsMap[b] ?? 0) - (ratingsMap[a] ?? 0))[0] || (priorities[0] as PriorityKey) || 'save-money';
     
     const profile: UserProfile = {
       lang: (form.get('lang') as 'en' | 'nl') ?? 'en',
@@ -47,7 +60,7 @@ export default function Start() {
       tenure: form.get('tenure') as any,
       heating: form.get('heating') as any,
       monthlyBillBand: form.get('bill') as any,
-      comfortPriority: form.get('comfort') as any,
+      comfortPriority: topPriority,
       habits: {
         laundryPerWeek: Number(form.get('laundry') ?? 3),
         dishwasher: Boolean(form.get('dishwasher')),
@@ -55,7 +68,14 @@ export default function Start() {
       },
       // New fields based on your notes
       priorities: priorities.length > 0 ? priorities : ['save-money'],
+      priorityRatings: {
+        'save-money': ratingsMap['save-money'] as any,
+        'warmer-home': ratingsMap['warmer-home'] as any,
+        'climate-impact': ratingsMap['climate-impact'] as any,
+        'grid-stability': ratingsMap['grid-stability'] as any
+      },
       dataConsent,
+      consentExpiresAt: dataConsent === 'temporary' ? (Date.now() + 90 * 24 * 60 * 60 * 1000) : undefined,
       autoFillData
     };
 
@@ -138,8 +158,32 @@ export default function Start() {
                     <div>District Heating: <strong>{autoFillData.districtHeatingAvailable ? 'Available' : 'Not Available'}</strong></div>
                     <div>Grid Status: <strong>{autoFillData.gridConstrained ? 'Constrained' : 'Normal'}</strong></div>
                   </div>
+                  {autoFillData.roomSizes && (
+                    <div className="mt-3 text-sm">
+                      <div className="font-medium mb-1">Detected Rooms:</div>
+                      <ul className="list-disc list-inside text-slate-700">
+                        {autoFillData.roomSizes.map((r: any, i: number) => (
+                          <li key={i}>{r.name}: {r.areaM2} m²</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
               )}
+
+              <div className="grid md:grid-cols-2 gap-4 mb-4">
+                <label className="grid gap-2">
+                  <span className="font-medium">Upload Energy Label (PDF/image)</span>
+                  <input name="energyLabelDoc" type="file" accept=".pdf,image/*" className="block" />
+                </label>
+                <label className="grid gap-2">
+                  <span className="font-medium">Upload Floor Plan (image)</span>
+                  <input name="floorplanImage" type="file" accept="image/*" className="block" />
+                </label>
+              </div>
+              <div>
+                <button type="button" onClick={handleAIExtract} className="btn-secondary">Extract details with AI (demo)</button>
+              </div>
 
               <div className="grid md:grid-cols-2 gap-4">
                 <label className="grid gap-2">
@@ -234,6 +278,51 @@ export default function Start() {
                     <div className="text-sm text-slate-600">Reduce peak demand & congestion</div>
                   </div>
                 </label>
+              </div>
+            </fieldset>
+
+            <fieldset className="card p-4">
+              <legend className="font-semibold text-base mb-2">Priority Intensity (1–5)</legend>
+              <p className="text-slate-600 mb-3 text-xs">Compact: choose one level per goal.</p>
+              <div className="overflow-auto">
+                <div className="grid items-center gap-2 text-xs" style={{gridTemplateColumns: 'minmax(120px,1fr) repeat(5, minmax(28px, 36px))'}}>
+                  <div className="" />
+                  {[1,2,3,4,5].map(n => (
+                    <div key={`hdr-${n}`} className="text-center text-slate-500">{n}</div>
+                  ))}
+
+                  {/* Save Money */}
+                  <div className="text-slate-700">Save Money</div>
+                  {[1,2,3,4,5].map((n) => (
+                    <label key={`money-${n}`} className="flex items-center justify-center">
+                      <input type="radio" name="rating-money" value={n} defaultChecked={n===3} className="text-[rgb(var(--brand))]" />
+                    </label>
+                  ))}
+
+                  {/* Improve Comfort */}
+                  <div className="text-slate-700">Improve Comfort</div>
+                  {[1,2,3,4,5].map((n) => (
+                    <label key={`comfort-${n}`} className="flex items-center justify-center">
+                      <input type="radio" name="rating-comfort" value={n} defaultChecked={n===3} className="text-[rgb(var(--brand))]" />
+                    </label>
+                  ))}
+
+                  {/* Climate Impact */}
+                  <div className="text-slate-700">Climate Impact</div>
+                  {[1,2,3,4,5].map((n) => (
+                    <label key={`climate-${n}`} className="flex items-center justify-center">
+                      <input type="radio" name="rating-climate" value={n} defaultChecked={n===3} className="text-[rgb(var(--brand))]" />
+                    </label>
+                  ))}
+
+                  {/* Support Grid */}
+                  <div className="text-slate-700">Support Grid</div>
+                  {[1,2,3,4,5].map((n) => (
+                    <label key={`grid-${n}`} className="flex items-center justify-center">
+                      <input type="radio" name="rating-grid" value={n} defaultChecked={n===3} className="text-[rgb(var(--brand))]" />
+                    </label>
+                  ))}
+                </div>
               </div>
             </fieldset>
 

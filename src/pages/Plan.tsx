@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+﻿import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useApp } from '../store';
 import { useTranslation } from '../i18n';
@@ -18,12 +18,23 @@ type ActionStatus = 'considering' | 'will-do' | 'will-not-do' | 'completed';
 type ActionFeedback = 'too-expensive' | 'not-suitable' | 'no-time' | 'need-more-info' | 'other';
 
 export default function Plan() {
-  const { recs, profile, addCredits, track } = useApp();
+  const { recs, profile, addCredits, track, setProfile } = useApp();
   const { t } = useTranslation(profile?.lang || 'en');
   const [expandedAction, setExpandedAction] = useState<string | null>(null);
   const [actionStatuses, setActionStatuses] = useState<Record<string, ActionStatus>>({});
   const [actionFeedback, setActionFeedback] = useState<Record<string, ActionFeedback>>({});
   const [showNeighborhoodComparison, setShowNeighborhoodComparison] = useState(false);
+  const [showPrivacy, setShowPrivacy] = useState(false);
+
+  // Learn More copy per action (extendable)
+  const learnMoreCopy = useMemo(() => ({
+    'smart-thermostat-peak': {
+      what: 'A smart thermostat is a connected device that automatically controls your heating schedule based on your preferences and presence. It can pre-heat off-peak and reduce demand during peak hours.',
+      why: 'It lowers energy bills and helps the local grid by shifting heating load away from congested hours (17:00–20:00). Great first step with low effort.',
+      space: 'The wall unit is typically the size of a small tablet (approx. 12–15 cm wide). The receiver near the boiler is about the size of a paperback book.',
+      best: 'Best placed in a central living area or hallway for accurate temperature sensing. Not recommended for bathrooms due to humidity.'
+    }
+  } as Record<string, { what: string; why: string; space: string; best: string }>), []);
 
   if (!profile) {
     return (
@@ -51,15 +62,15 @@ export default function Plan() {
       track({
         t: Date.now(),
         sid: crypto.randomUUID(),
-        event: 'action_viewed',
+        event: 'action_status_changed',
         pc4: profile.pc4,
         payload: { actionId, accepted: true, status }
       });
-    } else if (status === 'will-not-do' && feedback) {
+    } else if (status === 'will-not-do') {
       track({
         t: Date.now(),
         sid: crypto.randomUUID(),
-        event: 'action_viewed',
+        event: 'action_status_changed',
         pc4: profile.pc4,
         payload: { actionId, accepted: false, status, feedback }
       });
@@ -102,6 +113,68 @@ export default function Plan() {
             {showNeighborhoodComparison ? 'Hide' : 'Compare with'} Neighborhood
           </button>
         </div>
+
+        {/* Privacy controls */}
+        <div className="mb-4">
+          <button onClick={() => setShowPrivacy(v => !v)} className="text-sm text-[rgb(var(--brand))] hover:underline">
+            {showPrivacy ? 'Hide' : 'Privacy Settings'}
+          </button>
+          {showPrivacy && (
+            <div className="card p-4 mt-2">
+              <h3 className="font-semibold mb-2">Data Consent</h3>
+              <p className="text-sm text-slate-600 mb-3">We only store your neighborhood (PC4), never your exact address. You can change consent anytime.</p>
+              <div className="space-y-2 text-sm">
+                <label className="flex items-start gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="privacy-consent"
+                    className="text-[rgb(var(--brand))] mt-0.5"
+                    checked={profile.dataConsent === 'none'}
+                    onChange={() => setProfile({ ...profile, dataConsent: 'none', consentExpiresAt: undefined })}
+                  />
+                  <div>
+                    <div className="font-medium">Minimal Data</div>
+                    <div className="text-slate-600">Basic recommendations only; no sharing with municipality.</div>
+                  </div>
+                </label>
+
+                <label className="flex items-start gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="privacy-consent"
+                    className="text-[rgb(var(--brand))] mt-0.5"
+                    checked={profile.dataConsent === 'temporary'}
+                    onChange={() => setProfile({ ...profile, dataConsent: 'temporary', consentExpiresAt: Date.now() + 90*24*60*60*1000 })}
+                  />
+                  <div>
+                    <div className="font-medium">Temporary Sharing (3 months)</div>
+                    <div className="text-slate-600">Anonymous area-level insights to improve local policy. Automatically expires.</div>
+                    {profile.dataConsent === 'temporary' && profile.consentExpiresAt && (
+                      <div className="text-xs text-slate-500 mt-1">Expires: {new Date(profile.consentExpiresAt).toLocaleDateString()}</div>
+                    )}
+                  </div>
+                </label>
+
+                <label className="flex items-start gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="privacy-consent"
+                    className="text-[rgb(var(--brand))] mt-0.5"
+                    checked={profile.dataConsent === 'full'}
+                    onChange={() => setProfile({ ...profile, dataConsent: 'full', consentExpiresAt: undefined })}
+                  />
+                  <div>
+                    <div className="font-medium">Full Insights Sharing</div>
+                    <div className="text-slate-600">PC4-level analytics and improved future suggestions. Change anytime.</div>
+                  </div>
+                </label>
+              </div>
+              <div className="mt-3 p-2 bg-blue-50 text-blue-800 rounded text-xs">
+                Privacy by design: We aggregate by PC4 only, never store your exact address.
+              </div>
+            </div>
+          )}
+        </div>
         
         {/* Profile Summary */}
         <div className="card p-4 mb-6">
@@ -115,6 +188,11 @@ export default function Plan() {
             <span className="bg-slate-100 px-3 py-1 rounded-full">
               Budget: up to €{budget.toLocaleString()}
             </span>
+            {profile.autoFillData?.energyLabel && (
+              <span className="bg-green-50 text-green-800 px-3 py-1 rounded-full">
+                Energy label: {profile.autoFillData.energyLabel}
+              </span>
+            )}
             {isInHotZone && (
               <span className="bg-orange-100 text-orange-800 px-3 py-1 rounded-full">
                 Grid constrained area - Extra rewards for peak relief actions!
@@ -173,7 +251,18 @@ export default function Plan() {
             <div className="mt-4 p-3 bg-white rounded-lg">
               <div className="flex items-center justify-between">
                 <span className="font-medium">Interested in joining an energy cooperative?</span>
-                <button className="btn-primary text-sm">Find Local Groups</button>
+                <button 
+                  className="btn-primary text-sm"
+                  onClick={() => track({
+                    t: Date.now(),
+                    sid: crypto.randomUUID(),
+                    event: 'action_viewed',
+                    pc4: profile.pc4,
+                    payload: { cooperative_interest: true }
+                  })}
+                >
+                  Find Local Groups
+                </button>
               </div>
             </div>
           </div>
@@ -246,24 +335,12 @@ export default function Plan() {
                       >
                         I'll Do This (+25 credits)
                       </button>
-                      <div className="relative">
-                        <select 
-                          onChange={(e) => {
-                            if (e.target.value) {
-                              handleActionStatus(action.id, 'will-not-do', e.target.value as ActionFeedback);
-                            }
-                          }}
-                          className="w-full text-sm border border-slate-300 rounded-xl px-3 py-2 bg-white"
-                          defaultValue=""
-                        >
-                          <option value="">Not for me because...</option>
-                          <option value="too-expensive">Too expensive</option>
-                          <option value="not-suitable">Not suitable for my home</option>
-                          <option value="no-time">No time right now</option>
-                          <option value="need-more-info">Need more information</option>
-                          <option value="other">Other reason</option>
-                        </select>
-                      </div>
+                      <button 
+                        onClick={() => handleActionStatus(action.id, 'will-not-do')}
+                        className="btn-secondary"
+                      >
+                        I will not do this
+                      </button>
                     </>
                   )}
 
@@ -273,7 +350,16 @@ export default function Plan() {
                       <button className="btn-primary text-sm w-full">Find Subsidies</button>
                       <button className="btn-secondary text-sm w-full">Find Professionals</button>
                       <button 
-                        onClick={() => setActionStatuses(prev => ({ ...prev, [action.id]: 'completed' }))}
+                        onClick={() => {
+                          setActionStatuses(prev => ({ ...prev, [action.id]: 'completed' }));
+                          track({
+                            t: Date.now(),
+                            sid: crypto.randomUUID(),
+                            event: 'action_status_changed',
+                            pc4: profile.pc4,
+                            payload: { actionId: action.id, status: 'completed' }
+                          });
+                        }}
                         className="btn-secondary text-sm w-full"
                       >
                         Mark as Completed
@@ -281,12 +367,42 @@ export default function Plan() {
                     </div>
                   )}
 
-                  {status === 'will-not-do' && feedback && (
-                    <div className="text-sm text-slate-600 p-2 bg-slate-50 rounded">
-                      Feedback noted: {feedback.replace('-', ' ')}
+                  {status === 'will-not-do' && (
+                    <div className="text-sm text-slate-600 p-3 bg-slate-50 rounded space-y-2">
+                      <div className="font-medium">Not planning this action.</div>
+                      <div className="relative">
+                        <label className="block text-xs text-slate-500 mb-1">Optional: tell us why</label>
+                        <select 
+                          onChange={(e) => {
+                            if (e.target.value) {
+                              const reason = e.target.value as ActionFeedback;
+                              setActionFeedback(prev => ({ ...prev, [action.id]: reason }));
+                              track({
+                                t: Date.now(),
+                                sid: crypto.randomUUID(),
+                                event: 'action_status_changed',
+                                pc4: profile.pc4,
+                                payload: { actionId: action.id, status: 'will-not-do', feedback: reason }
+                              });
+                            }
+                          }}
+                          className="w-full text-sm border border-slate-300 rounded-xl px-3 py-2 bg-white"
+                          defaultValue={feedback || ''}
+                        >
+                          <option value="">Select a reason (optional)</option>
+                          <option value="too-expensive">Too expensive</option>
+                          <option value="not-suitable">Not suitable for my home</option>
+                          <option value="no-time">No time right now</option>
+                          <option value="need-more-info">Need more information</option>
+                          <option value="other">Other reason</option>
+                        </select>
+                        {feedback && (
+                          <div className="text-xs text-slate-500 mt-1">Feedback noted: {feedback.replace('-', ' ')}</div>
+                        )}
+                      </div>
                       <button 
                         onClick={() => setActionStatuses(prev => ({ ...prev, [action.id]: 'considering' }))}
-                        className="block mt-2 text-[rgb(var(--brand))] hover:underline"
+                        className="block text-[rgb(var(--brand))] hover:underline"
                       >
                         Reconsider
                       </button>
@@ -305,6 +421,28 @@ export default function Plan() {
               {expandedAction === action.id && (
                 <div className="mt-6 pt-6 border-t border-slate-200">
                   <div className="grid md:grid-cols-3 gap-6">
+                    {/* Learn More */}
+                    <div>
+                      <h4 className="font-semibold mb-2 flex items-center gap-2">📚 Learn More:</h4>
+                      <div className="space-y-2 text-sm text-slate-700">
+                        <div>
+                          <strong>What is it?</strong>
+                          <div className="text-slate-600">{learnMoreCopy[action.id]?.what || action.summary}</div>
+                        </div>
+                        <div>
+                          <strong>Why is it good?</strong>
+                          <div className="text-slate-600">{learnMoreCopy[action.id]?.why || 'Reduces energy use and carbon emissions while improving comfort.'}</div>
+                        </div>
+                        <div>
+                          <strong>How much space?</strong>
+                          <div className="text-slate-600">{learnMoreCopy[action.id]?.space || 'Typically fits within existing equipment space or standard utility areas.'}</div>
+                        </div>
+                        <div>
+                          <strong>Best suited for</strong>
+                          <div className="text-slate-600">{learnMoreCopy[action.id]?.best || 'Most homes; suitability may vary by build year and heating system.'}</div>
+                        </div>
+                      </div>
+                    </div>
                     {/* How To */}
                     <div>
                       <h4 className="font-semibold mb-2 flex items-center gap-2">

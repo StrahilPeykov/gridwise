@@ -9,7 +9,7 @@ import Rewards from './pages/Rewards';
 import Admin from './pages/Admin';
 
 export default function App() {
-  const { profile } = useApp();
+  const { profile, setProfile } = useApp();
   const { t } = useTranslation(profile?.lang || 'en');
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -18,6 +18,13 @@ export default function App() {
     // Close mobile menu on route change
     setMobileOpen(false);
   }, [location.pathname]);
+
+  // Enforce temporary consent expiry on app load and route changes
+  useEffect(() => {
+    if (profile?.dataConsent === 'temporary' && profile.consentExpiresAt && Date.now() > profile.consentExpiresAt) {
+      setProfile({ ...profile, dataConsent: 'none', consentExpiresAt: undefined });
+    }
+  }, [profile?.dataConsent, profile?.consentExpiresAt, location.pathname]);
 
   const navItems = [
     { path: '/start', label: 'Energy Assessment', key: 'nav.start' },

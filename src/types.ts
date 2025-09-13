@@ -3,6 +3,7 @@ export type HeatingType = 'district' | 'gas-boiler' | 'electric' | 'hybrid-heat-
 export type Tenure = 'renter' | 'owner' | 'vve';
 export type HomeType = 'apartment' | 'row' | 'detached' | 'semi-detached' | 'maisonette' | 'unknown';
 export type DataConsent = 'none' | 'temporary' | 'full';
+export type PriorityKey = 'save-money' | 'warmer-home' | 'climate-impact' | 'grid-stability';
 
 export interface UserProfile {
   lang: 'en' | 'nl';
@@ -13,9 +14,11 @@ export interface UserProfile {
   tenure: Tenure;
   heating: HeatingType;
   monthlyBillBand: 'under-100' | '100-200' | '200-300' | '300-plus' | 'unknown';
-  comfortPriority: 'save-money' | 'warmer-home' | 'climate-impact';
+  comfortPriority: PriorityKey; // Primary priority (derived if not explicitly chosen)
   priorities: string[]; // Multiple priorities allowed
+  priorityRatings?: Partial<Record<PriorityKey, 1 | 2 | 3 | 4 | 5>>; // 1–5 range
   dataConsent: DataConsent; // Privacy preference
+  consentExpiresAt?: number; // Epoch ms; only for 'temporary'
   habits: { 
     laundryPerWeek: number; 
     dishwasher: boolean; 
@@ -28,6 +31,7 @@ export interface UserProfile {
     roofSuitability: string;
     districtHeatingAvailable: boolean;
     gridConstrained: boolean;
+    roomSizes?: { name: string; areaM2: number }[];
   };
 }
 

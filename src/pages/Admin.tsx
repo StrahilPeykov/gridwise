@@ -108,6 +108,28 @@ export default function EnhancedAdmin() {
     };
   }, []);
 
+  // Derive top barrier insights from anonymized events (PC4-level only)
+  const derivedTopBarriers = useMemo(() => {
+    const counts: Record<string, number> = {};
+    events.forEach((e) => {
+      if (e.event === 'action_status_changed') {
+        const p = (e.payload || {}) as any;
+        if (p.status === 'will-not-do' && p.feedback) {
+          const key = String(p.feedback)
+            .replace(/-/g, ' ')
+            .replace(/\b\w/g, (c) => c.toUpperCase());
+          counts[key] = (counts[key] || 0) + 1;
+        }
+      }
+    });
+    const total = Object.values(counts).reduce((a, b) => a + b, 0);
+    return Object.entries(counts).map(([barrier, count]) => ({
+      barrier,
+      count,
+      percentage: total ? Math.round((count / total) * 100) : 0
+    }));
+  }, [events]);
+
   // Additional metrics used in the goals section
   const amsterdamMetrics = useMemo(() => ({
     // Percentage of gas phase-out progress (mock value for demo)
@@ -324,14 +346,14 @@ export default function EnhancedAdmin() {
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
-                data={amsterdamAnalytics.topBarriers}
+                data={derivedTopBarriers.length ? derivedTopBarriers : amsterdamAnalytics.topBarriers}
                 cx="50%"
                 cy="50%"
                 outerRadius={100}
                 dataKey="count"
                 label={({ barrier, percentage }) => `${barrier}: ${percentage}%`}
               >
-                {amsterdamAnalytics.topBarriers.map((entry, index) => (
+                {(derivedTopBarriers.length ? derivedTopBarriers : amsterdamAnalytics.topBarriers).map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={['#ef4444', '#f59e0b', '#3b82f6', '#8b5cf6', '#6b7280'][index]} />
                 ))}
               </Pie>
