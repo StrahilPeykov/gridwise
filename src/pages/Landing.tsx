@@ -45,7 +45,7 @@ export default function Landing() {
           </div>
 
           {/* Key Stats */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-2xl mx-auto">
+          <div className="grid grid-cols-3 gap-4 sm:gap-6 max-w-2xl mx-auto">
             <div className="text-center">
               <div className="text-2xl font-bold text-[rgb(var(--brand))]">60 sec</div>
               <div className="text-sm text-slate-600">Quick assessment</div>
