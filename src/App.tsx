@@ -95,7 +95,7 @@ export default function App() {
         )}
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 py-6">
+      <main className={`max-w-6xl mx-auto px-4 ${location.pathname === '/' ? 'pb-6' : 'py-6'}`}>
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/start" element={<Start />} />
