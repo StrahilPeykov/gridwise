@@ -25,6 +25,8 @@ export default function Plan() {
   const [actionFeedback, setActionFeedback] = useState<Record<string, ActionFeedback>>({});
   const [showNeighborhoodComparison, setShowNeighborhoodComparison] = useState(false);
   const [showPrivacy, setShowPrivacy] = useState(false);
+  // Toggle long step lists per action to keep layout compact
+  const [expandedSteps, setExpandedSteps] = useState<Record<string, boolean>>({});
 
   // Learn More copy per action (extendable)
   const learnMoreCopy = useMemo(() => ({
@@ -346,8 +348,7 @@ export default function Plan() {
 
                   {status === 'will-do' && (
                     <div className="space-y-2">
-                      <div className="text-sm font-medium text-green-700">Great choice! Next steps:</div>
-                      <button className="btn-primary text-sm w-full">Find Subsidies</button>
+                      <div className="text-sm font-medium text-green-700">Great choice! Review details below.</div>
                       <button className="btn-secondary text-sm w-full">Find Professionals</button>
                       <button 
                         onClick={() => {
@@ -417,14 +418,21 @@ export default function Plan() {
                 </div>
               </div>
 
-              {/* Expanded Details */}
-              {expandedAction === action.id && (
+              {/* Unified Details (shown for Learn More or I'll Do This) */}
+              {(expandedAction === action.id || status === 'will-do') && (
                 <div className="mt-6 pt-6 border-t border-slate-200">
-                  <div className="grid md:grid-cols-3 gap-6">
-                    {/* Learn More */}
+                  {/* Compact meta chips to balance columns */}
+                  <div className="flex flex-wrap gap-2 mb-4 text-xs">
+                    <span className="badge border-blue-200 bg-blue-50 text-blue-800">Difficulty: {action.feasibility}</span>
+                    <span className="badge border-amber-200 bg-amber-50 text-amber-800">Grid impact: {action.peakRelief}</span>
+                    <span className="badge border-slate-200 bg-slate-50 text-slate-700">Space: {learnMoreCopy[action.id]?.space || 'Fits typical utility areas.'}</span>
+                    <span className="badge border-slate-200 bg-slate-50 text-slate-700">Best for: {learnMoreCopy[action.id]?.best || 'Most homes'}</span>
+                  </div>
+                  <div className="grid md:grid-cols-2 gap-6">
+                    {/* Practical information */}
                     <div>
-                      <h4 className="font-semibold mb-2 flex items-center gap-2">📚 Learn More:</h4>
-                      <div className="space-y-2 text-sm text-slate-700">
+                      <h4 className="font-semibold mb-2">Practical information</h4>
+                      <div className="space-y-3 text-sm text-slate-700">
                         <div>
                           <strong>What is it?</strong>
                           <div className="text-slate-600">{learnMoreCopy[action.id]?.what || action.summary}</div>
@@ -434,71 +442,45 @@ export default function Plan() {
                           <div className="text-slate-600">{learnMoreCopy[action.id]?.why || 'Reduces energy use and carbon emissions while improving comfort.'}</div>
                         </div>
                         <div>
-                          <strong>How much space?</strong>
-                          <div className="text-slate-600">{learnMoreCopy[action.id]?.space || 'Typically fits within existing equipment space or standard utility areas.'}</div>
-                        </div>
-                        <div>
-                          <strong>Best suited for</strong>
-                          <div className="text-slate-600">{learnMoreCopy[action.id]?.best || 'Most homes; suitability may vary by build year and heating system.'}</div>
-                        </div>
-                      </div>
-                    </div>
-                    {/* How To */}
-                    <div>
-                      <h4 className="font-semibold mb-2 flex items-center gap-2">
-                        📋 How to Get Started:
-                      </h4>
-                      <ul className="list-disc list-inside space-y-1 text-sm text-slate-600">
-                        {action.howTo.map((step, i) => (
-                          <li key={i}>{step}</li>
-                        ))}
-                      </ul>
-                    </div>
-                    
-                    {/* Subsidies & Financing */}
-                    <div>
-                      <h4 className="font-semibold mb-2 flex items-center gap-2">
-                        💸 Subsidies & Financing:
-                      </h4>
-                      {action.subsidies.length > 0 ? (
-                        <div className="space-y-2">
-                          {action.subsidies.map((subsidy, i) => (
-                            <div key={i} className="text-sm p-2 bg-green-50 rounded">
-                              <span className="font-medium text-green-800">
-                                {subsidy.code}:
-                              </span>
-                              <span className="text-green-700 ml-1">
-                                {subsidy.note}
-                              </span>
-                            </div>
-                          ))}
-                          <button className="text-sm text-[rgb(var(--brand))] hover:underline">
-                            Apply for subsidies →
-                          </button>
-                        </div>
-                      ) : (
-                        <p className="text-sm text-slate-600">No specific subsidies, but check general energy loans</p>
-                      )}
-                    </div>
-
-                    {/* Practical Info */}
-                    <div>
-                      <h4 className="font-semibold mb-2 flex items-center gap-2">
-                        🔧 Practical Info:
-                      </h4>
-                      <div className="space-y-2 text-sm">
-                        <div className="p-2 bg-blue-50 rounded">
-                          <strong>Difficulty:</strong> {action.feasibility}
-                        </div>
-                        <div className="p-2 bg-yellow-50 rounded">
-                          <strong>Grid Impact:</strong> {action.peakRelief} peak relief
-                        </div>
-                        <div className="p-2 bg-purple-50 rounded">
-                          <strong>Payback:</strong> ~{Math.round((action.costRangeEUR[0] + action.costRangeEUR[1]) / 2 / ((action.annualSavingsEUR[0] + action.annualSavingsEUR[1]) / 2))} years
+                          <div className="font-medium mb-1">How to get started</div>
+                          <ul className="list-disc list-inside text-slate-600 grid md:grid-cols-2 gap-x-6 gap-y-1">
+                            {(expandedSteps[action.id] ? action.howTo : action.howTo.slice(0, 3)).map((step, i) => (
+                              <li key={i}>{step}</li>
+                            ))}
+                          </ul>
+                          {action.howTo.length > 3 && (
+                            <button
+                              type="button"
+                              onClick={() => setExpandedSteps(prev => ({ ...prev, [action.id]: !prev[action.id] }))}
+                              className="mt-2 text-[rgb(var(--brand))] hover:underline"
+                            >
+                              {expandedSteps[action.id] ? 'Show fewer steps' : 'Show all steps'}
+                            </button>
+                          )}
                         </div>
                         <button className="text-[rgb(var(--brand))] hover:underline">
-                          Connect with energy coach for help →
+                          Connect with energy coach →
                         </button>
+                      </div>
+                    </div>
+                    {/* Financial information */}
+                    <div>
+                      <h4 className="font-semibold mb-2">Financial information</h4>
+                      <div className="space-y-2 text-sm">
+                        <div className="p-2 bg-slate-50 rounded">
+                          <strong>Upfront cost:</strong> €{action.costRangeEUR[0]}–{action.costRangeEUR[1]}
+                        </div>
+                        <div className="p-2 bg-green-50 rounded">
+                          <strong>Annual savings:</strong> €{action.annualSavingsEUR[0]}–{action.annualSavingsEUR[1]}
+                        </div>
+                        <div className="p-2 bg-purple-50 rounded">
+                          <strong>Estimated payback:</strong> ~{Math.round((action.costRangeEUR[0] + action.costRangeEUR[1]) / 2 / ((action.annualSavingsEUR[0] + action.annualSavingsEUR[1]) / 2))} years
+                        </div>
+                        {action.renterFriendly && (
+                          <div className="p-2 bg-blue-50 rounded">
+                            <strong>Renter-friendly</strong>: works without major alterations
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
