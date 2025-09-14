@@ -14,6 +14,21 @@ export default function Start() {
   const [autoFillData, setAutoFillData] = useState<any>(null);
   const [dataConsent, setDataConsent] = useState<'none' | 'temporary' | 'full'>('none');
 
+  // Explicit integration permission + demo progress
+  const [integrationConsent, setIntegrationConsent] = useState(false);
+  const [integrationStatus, setIntegrationStatus] = useState<'idle' | 'running' | 'done'>('idle');
+  const [integrationError, setIntegrationError] = useState<string | null>(null);
+  const [integrationSteps, setIntegrationSteps] = useState<
+    { id: string; label: string; status: 'pending' | 'running' | 'done' }[]
+  >([
+    { id: 'smart-meter-fetch', label: 'Fetching meter information from energy provider', status: 'pending' },
+    { id: 'smart-meter-analyse', label: 'Analysing energy consumption…', status: 'pending' },
+    { id: 'kadaster-fetch', label: 'Fetching data from Kadaster', status: 'pending' },
+    { id: 'housing-insulation', label: 'Determine isolation possibilities...', status: 'pending' },
+    { id: 'housing-space', label: 'Determine available spaces for energy options', status: 'pending' },
+    { id: 'municipality-analyse', label: 'Fetching and analysing municipal data (demo)', status: 'pending' }
+  ]);
+
   const handleAutoFill = async () => {
     const pc4Input = document.querySelector('input[name="pc4"]') as HTMLInputElement | null;
     const pc4 = pc4Input?.value?.trim() || '';
@@ -26,6 +41,64 @@ export default function Start() {
     const floorplanImage = (document.querySelector('input[name="floorplanImage"]') as HTMLInputElement | null)?.files?.[0] || null;
     const extracted = await extractInfoFromUploads({ energyLabelDoc, floorplanImage });
     setAutoFillData((prev: any) => ({ ...prev, ...extracted }));
+  };
+
+  const startIntegrations = async () => {
+    const pc4Input = document.querySelector('input[name="pc4"]') as HTMLInputElement | null;
+    const pc4 = pc4Input?.value?.trim() || '';
+    if (!/^[0-9]{4}$/.test(pc4)) {
+      setIntegrationError('Please enter your PC4 (first 4 postcode digits) to proceed.');
+      return;
+    }
+    setIntegrationError(null);
+    setIntegrationConsent(true);
+    setIntegrationStatus('running');
+    // reset steps
+    setIntegrationSteps((prev) => prev.map(s => ({ ...s, status: 'pending' })));
+
+    const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+    const runStep = async (id: string, fn?: () => Promise<void> | void) => {
+      setIntegrationSteps(prev => prev.map(s => s.id === id ? { ...s, status: 'running' } : s));
+      await delay(600);
+      if (fn) await fn();
+      setIntegrationSteps(prev => prev.map(s => s.id === id ? { ...s, status: 'done' } : s));
+    };
+
+    try {
+      await runStep('smart-meter-fetch');
+      await runStep('smart-meter-analyse', async () => {
+        const baseLoad = 0.25 + ((Number(pc4[3]) % 4) * 0.1); // 0.25–0.55 kWh baseline
+        setAutoFillData((prev: any) => ({
+          ...prev,
+          smartMeterInsights: {
+            peakWindow: '18:00–21:00',
+            nightBaseLoadKwh: Number(baseLoad.toFixed(2)),
+            notes: 'Suggest shifting laundry/dishwasher to after 21:00. Smart thermostat can pre-heat off-peak.'
+          }
+        }));
+      });
+      await runStep('kadaster-fetch', async () => {
+        const data = await prefillFromExternalSources(pc4);
+        setAutoFillData(prev => ({ ...prev, ...data }));
+      });
+      await runStep('housing-insulation', async () => {
+        setAutoFillData((prev: any) => ({
+          ...prev,
+          insulationCandidates: ['Roof insulation', 'Floor insulation', 'Window sealing'],
+        }));
+      });
+      await runStep('housing-space', async () => {
+        setAutoFillData((prev: any) => ({
+          ...prev,
+          spaceNotes: 'Utility/storage has ~0.5m² for indoor unit; balcony suitable for small outdoor unit.'
+        }));
+      });
+      await runStep('municipality-analyse');
+      setIntegrationStatus('done');
+    } catch (e) {
+      setIntegrationError('Integration failed. Please try again.');
+      setIntegrationStatus('idle');
+    }
   };
 
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -171,6 +244,60 @@ export default function Start() {
                 </div>
               )}
 
+              {/* Explicit permission + transparent integration demo */}
+              <div className="card p-4 mb-4">
+                <h4 className="font-semibold mb-2">Data Integrations (optional)</h4>
+                <p className="text-sm text-slate-600 mb-3">
+                  With your explicit permission, we can fetch data to improve recommendations:
+                </p>
+                <ul className="list-disc list-inside text-sm text-slate-700 mb-3">
+                  <li>Smart meter: analyse consumption patterns to suggest peak‑relief and savings.</li>
+                  <li>Kadaster housing: assess insulation options and solar/heat‑pump feasibility.</li>
+                  <li>Municipality: check local constraints and program eligibility (demo only).</li>
+                </ul>
+                {integrationError && (
+                  <div className="mb-3 p-2 text-sm bg-red-50 text-red-700 rounded">
+                    {integrationError}
+                  </div>
+                )}
+                {integrationStatus === 'idle' && (
+                  <button onClick={startIntegrations} type="button" className="btn-primary">
+                    Give Permission & Start
+                  </button>
+                )}
+                {integrationStatus !== 'idle' && (
+                  <div className="mt-3">
+                    <div className="text-sm font-medium mb-2">
+                      {integrationStatus === 'running' ? 'Working…' : 'Completed'}
+                    </div>
+                    <div className="space-y-2">
+                      {integrationSteps.map(step => (
+                        <div key={step.id} className="flex items-center gap-2 text-sm">
+                          {step.status === 'done' ? (
+                            <svg className="w-4 h-4 text-green-600" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-7.364 7.364a1 1 0 01-1.414 0L3.293 9.828a1 1 0 111.414-1.414l3.222 3.222 6.657-6.657a1 1 0 011.414 0z" clipRule="evenodd"/></svg>
+                          ) : step.status === 'running' ? (
+                            <svg className="w-4 h-4 text-blue-600 animate-spin" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path></svg>
+                          ) : (
+                            <span className="w-4 h-4 rounded-full border border-slate-300 inline-block"></span>
+                          )}
+                          <span className={step.status === 'done' ? 'text-slate-600' : step.status === 'running' ? 'text-slate-800' : 'text-slate-500'}>
+                            {step.label}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {integrationStatus === 'done' && autoFillData?.smartMeterInsights && (
+                  <div className="mt-3 p-3 bg-green-50 rounded text-sm text-green-800">
+                    <div className="font-medium mb-1">Smart meter insights:</div>
+                    <div>Peak window: <strong>{autoFillData.smartMeterInsights.peakWindow}</strong></div>
+                    <div>Night base load: <strong>{autoFillData.smartMeterInsights.nightBaseLoadKwh} kWh</strong></div>
+                    <div className="text-green-900 mt-1">{autoFillData.smartMeterInsights.notes}</div>
+                  </div>
+                )}
+              </div>
+
               <div className="grid md:grid-cols-2 gap-4 mb-4">
                 <label className="grid gap-2">
                   <span className="font-medium">Upload Energy Label (PDF/image)</span>
@@ -278,51 +405,6 @@ export default function Start() {
                     <div className="text-sm text-slate-600">Reduce peak demand & congestion</div>
                   </div>
                 </label>
-              </div>
-            </fieldset>
-
-            <fieldset className="card p-4">
-              <legend className="font-semibold text-base mb-2">Priority Intensity (1–5)</legend>
-              <p className="text-slate-600 mb-3 text-xs">Compact: choose one level per goal.</p>
-              <div className="overflow-auto">
-                <div className="grid items-center gap-2 text-xs" style={{gridTemplateColumns: 'minmax(120px,1fr) repeat(5, minmax(28px, 36px))'}}>
-                  <div className="" />
-                  {[1,2,3,4,5].map(n => (
-                    <div key={`hdr-${n}`} className="text-center text-slate-500">{n}</div>
-                  ))}
-
-                  {/* Save Money */}
-                  <div className="text-slate-700">Save Money</div>
-                  {[1,2,3,4,5].map((n) => (
-                    <label key={`money-${n}`} className="flex items-center justify-center">
-                      <input type="radio" name="rating-money" value={n} defaultChecked={n===3} className="text-[rgb(var(--brand))]" />
-                    </label>
-                  ))}
-
-                  {/* Improve Comfort */}
-                  <div className="text-slate-700">Improve Comfort</div>
-                  {[1,2,3,4,5].map((n) => (
-                    <label key={`comfort-${n}`} className="flex items-center justify-center">
-                      <input type="radio" name="rating-comfort" value={n} defaultChecked={n===3} className="text-[rgb(var(--brand))]" />
-                    </label>
-                  ))}
-
-                  {/* Climate Impact */}
-                  <div className="text-slate-700">Climate Impact</div>
-                  {[1,2,3,4,5].map((n) => (
-                    <label key={`climate-${n}`} className="flex items-center justify-center">
-                      <input type="radio" name="rating-climate" value={n} defaultChecked={n===3} className="text-[rgb(var(--brand))]" />
-                    </label>
-                  ))}
-
-                  {/* Support Grid */}
-                  <div className="text-slate-700">Support Grid</div>
-                  {[1,2,3,4,5].map((n) => (
-                    <label key={`grid-${n}`} className="flex items-center justify-center">
-                      <input type="radio" name="rating-grid" value={n} defaultChecked={n===3} className="text-[rgb(var(--brand))]" />
-                    </label>
-                  ))}
-                </div>
               </div>
             </fieldset>
 

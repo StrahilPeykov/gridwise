@@ -83,3 +83,15 @@ Overlay data sources (first found is used):
 If neither file exists, the map renders without overlays (basemap only).
 
 Privacy: Only PC4 codes and aggregated counts are used. No addresses or personal identifiers are processed.
+
+## Energy Assessment Demo
+
+- Explicit permission: On Start → "Your Address & Home", use the "Data Integrations (optional)" panel. Click "Give Permission & Start" to grant consent for a demo-only flow that simulates:
+  - Smart meters: "Fetching meter information from energy provider" → "Analysing energy consumption…"
+  - Housing (Kadaster): "Fetching data from Kadaster" → determine insulation possibilities and available spaces
+  - Municipality: "Fetching and analysing municipal data (demo)"
+  This shows transparent, step-by-step progress and summarises insights used for recommendations. No real external calls are made.
+
+- Auto-fill: You can still use "Auto-fill from Kadaster" by entering your PC4 (first 4 postcode digits) and clicking the button to pre-populate demo housing fields.
+
+- Priorities UI: The energy priorities step uses simple checkboxes (one method) for clarity. Intensity sliders are omitted; sensible defaults are applied internally.
