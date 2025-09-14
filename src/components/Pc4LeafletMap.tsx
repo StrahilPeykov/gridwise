@@ -74,6 +74,9 @@ export default function Pc4LeafletMap({
   const [mapReady, setMapReady] = useState(false);
   const mapRef = useRef<any>(null);
   const overlayRef = useRef<any>(null);
+  const homeViewRef = useRef<{ center: [number, number]; zoom: number } | null>(null);
+  const homeBoundsRef = useRef<any>(null);
+  const resetCtrlRef = useRef<any>(null);
 
   // Lookup table for PC4 -> value/meta
   const lookup = useMemo(() => {
@@ -94,6 +97,45 @@ export default function Pc4LeafletMap({
             maxZoom: 19,
           }).addTo(map);
           mapRef.current = map;
+
+          // Save initial home view
+          homeViewRef.current = { center, zoom };
+
+          // Add a small reset control to return to Amsterdam view
+          if (!resetCtrlRef.current) {
+            const ResetControl = L.Control.extend({
+              options: { position: 'topleft' },
+              onAdd: function () {
+                const container = L.DomUtil.create('div', 'leaflet-bar');
+                const link = L.DomUtil.create('a', '', container);
+                link.href = '#';
+                link.title = 'Reset to Amsterdam';
+                link.setAttribute('aria-label', 'Reset to Amsterdam');
+                link.style.width = '28px';
+                link.style.height = '28px';
+                link.style.lineHeight = '28px';
+                link.style.textAlign = 'center';
+                link.style.fontSize = '16px';
+                link.textContent = '⌂';
+                L.DomEvent.on(link, 'click', (e: any) => {
+                  L.DomEvent.stopPropagation(e);
+                  L.DomEvent.preventDefault(e);
+                  const m = mapRef.current;
+                  if (!m) return;
+                  const hb = homeBoundsRef.current;
+                  if (hb && hb.isValid && hb.isValid()) {
+                    m.flyToBounds(hb, { padding: [20, 20] });
+                  } else if (homeViewRef.current) {
+                    const hv = homeViewRef.current;
+                    m.flyTo(hv.center, hv.zoom);
+                  }
+                });
+                return container;
+              }
+            });
+            resetCtrlRef.current = new ResetControl();
+            resetCtrlRef.current.addTo(map);
+          }
         }
         setMapReady(true);
       })
@@ -114,6 +156,7 @@ export default function Pc4LeafletMap({
       overlayRef.current.remove();
       overlayRef.current = null;
     }
+    homeBoundsRef.current = null;
 
     const greenStart = '#dcfce7', greenEnd = '#22c55e';
     const redStart = '#fee2e2', redEnd = '#ef4444';
@@ -147,10 +190,13 @@ export default function Pc4LeafletMap({
         },
       });
       overlayRef.current = layer.addTo(map);
-      // Fit bounds if features available
+      // Fit bounds if features available and save as home bounds
       try {
         const b = layer.getBounds();
-        if (b && b.isValid()) map.fitBounds(b, { padding: [20, 20] });
+        if (b && b.isValid()) {
+          homeBoundsRef.current = b;
+          map.fitBounds(b, { padding: [20, 20] });
+        }
       } catch {}
     };
 
@@ -191,4 +237,3 @@ export default function Pc4LeafletMap({
     </div>
   );
 }
-
