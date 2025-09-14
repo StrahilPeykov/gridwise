@@ -44,7 +44,7 @@ export default function App() {
               </svg>
             </div>
             <span className="text-base font-semibold text-[rgb(var(--brand))]">
-              GridWise Amsterdam
+              Energie Kompas Amsterdam
             </span>
           </Link>
 
