@@ -116,7 +116,7 @@ export default function App() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
                 </div>
-                <span className="font-semibold text-[rgb(var(--brand))]">GridWise Amsterdam</span>
+                <span className="font-semibold text-[rgb(var(--brand))]">Energie Kompas Amsterdam</span>
               </div>
               <p className="text-sm text-slate-600 mb-4">
                 Supporting Amsterdam's energy transition through personalized guidance and community action.
