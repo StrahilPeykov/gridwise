@@ -534,7 +534,7 @@ export default function Start() {
                   />
                   <div>
                     <div className="font-medium">Full Insights Sharing</div>
-                    <div className="text-sm text-slate-600">Help improve city-wide programs, receive personalized future recommendations</div>
+                    <div className="text-sm text-slate-600">Help improve city-wide programs, receive personalized future recommendations. Kept up to 24 months from last use; deleted/anonymised within 30 days or on withdrawal.</div>
                   </div>
                 </label>
               </div>
