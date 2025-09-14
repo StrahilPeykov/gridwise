@@ -107,7 +107,7 @@ export default function App() {
 
       <footer className="mt-12 border-t bg-slate-50">
         <div className="max-w-6xl mx-auto px-4 py-8">
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-8">
             {/* About */}
             <div>
               <div className="flex items-center gap-2 mb-3">
@@ -130,52 +130,97 @@ export default function App() {
               </div>
             </div>
 
-            {/* Amsterdam Goals */}
+            {/* For residents */}
             <div>
-              <h3 className="font-semibold text-slate-800 mb-3">Amsterdam Climate Goals</h3>
+              <h3 className="font-semibold text-slate-800 mb-3">For residents</h3>
               <ul className="space-y-2 text-sm text-slate-600">
-                <li className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
-                  <span>2030: 55% CO₂ reduction</span>
+                <li>
+                  <a href="https://www.amsterdam.nl/en/housing/sustainable-living/" target="_blank" rel="noopener noreferrer" className="hover:text-[rgb(var(--brand))] hover:underline">Sustainable living (EN)</a>
                 </li>
-                <li className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 bg-amber-500 rounded-full"></span>
-                  <span>2040: Natural gas phase-out</span>
+                <li>
+                  <a href="https://www.amsterdam.nl/werk-en-inkomen/regelingen-bij-laag-inkomen-pak-je-kans/regelingen-alfabet/gratis-hulp-huis-energie-besparen/" target="_blank" rel="noopener noreferrer" className="hover:text-[rgb(var(--brand))] hover:underline">Energy help at home – Energiehulp (NL)</a>
                 </li>
-                <li className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
-                  <span>2050: Climate neutrality</span>
+                <li>
+                  <a href="https://www.amsterdam.nl/en/waste-recycling/" target="_blank" rel="noopener noreferrer" className="hover:text-[rgb(var(--brand))] hover:underline">Waste & recycling (EN)</a>
+                </li>
+                <li>
+                  <a href="https://www.amsterdam.nl/en/work-income/benefits-low-income/" target="_blank" rel="noopener noreferrer" className="hover:text-[rgb(var(--brand))] hover:underline">Benefits for residents with low incomes (EN)</a>
                 </li>
               </ul>
             </div>
 
-            {/* Platform */}
+            {/* Policy & goals */}
             <div>
-              <h3 className="font-semibold text-slate-800 mb-3">Platform</h3>
-              <div className="space-y-2">
-                {navItems.map(({ path, label }) => (
-                  <div key={path}>
-                    <Link 
-                      to={path}
-                      className="text-sm text-slate-600 hover:text-[rgb(var(--brand))] hover:underline block"
-                    >
-                      {label}
-                    </Link>
-                  </div>
-                ))}
-                <div className="pt-2 mt-4 border-t border-slate-200">
-                  <p className="text-xs text-slate-500">
-                    Created for Amsterdam Policy Hackathon 2025
-                  </p>
-                </div>
-              </div>
+              <h3 className="font-semibold text-slate-800 mb-3">Policy & goals</h3>
+              <ul className="space-y-2 text-sm text-slate-600">
+                <li>
+                  <a href="https://www.amsterdam.nl/en/policy/sustainability/" target="_blank" rel="noopener noreferrer" className="hover:text-[rgb(var(--brand))] hover:underline">Sustainability & energy (EN)</a>
+                </li>
+                <li>
+                  <a href="https://www.amsterdam.nl/en/policy/sustainability/policy-climate-neutrality/" target="_blank" rel="noopener noreferrer" className="hover:text-[rgb(var(--brand))] hover:underline">Climate neutrality (EN)</a>
+                </li>
+                <li>
+                  <a href="https://www.amsterdam.nl/en/policy/sustainability/policy-climate-adaptation/" target="_blank" rel="noopener noreferrer" className="hover:text-[rgb(var(--brand))] hover:underline">Climate adaptation (EN)</a>
+                </li>
+                <li>
+                  <a href="https://www.amsterdam.nl/en/policy/sustainability/circular-economy/" target="_blank" rel="noopener noreferrer" className="hover:text-[rgb(var(--brand))] hover:underline">Circular economy (EN)</a>
+                </li>
+                <li>
+                  <a href="https://www.amsterdam.nl/en/policy/sustainability/renewable-energy/" target="_blank" rel="noopener noreferrer" className="hover:text-[rgb(var(--brand))] hover:underline">Renewable energy (EN)</a>
+                </li>
+              </ul>
+            </div>
+
+            {/* Transport & mobility */}
+            <div>
+              <h3 className="font-semibold text-slate-800 mb-3">Transport & mobility</h3>
+              <ul className="space-y-2 text-sm text-slate-600">
+                <li>
+                  <a href="https://www.amsterdam.nl/en/traffic-transport/low-emission-zone/" target="_blank" rel="noopener noreferrer" className="hover:text-[rgb(var(--brand))] hover:underline">Low & zero-emission zones (EN)</a>
+                </li>
+                <li>
+                  <a href="https://www.amsterdam.nl/en/traffic-transport/boating/emission-free-zone/" target="_blank" rel="noopener noreferrer" className="hover:text-[rgb(var(--brand))] hover:underline">Emission-free waterways (EN)</a>
+                </li>
+              </ul>
+            </div>
+
+            {/* Contact & site */}
+            <div>
+              <h3 className="font-semibold text-slate-800 mb-3">Contact & site</h3>
+              <ul className="space-y-2 text-sm text-slate-600">
+                <li>
+                  <a href="https://www.amsterdam.nl/en/contact-city-amsterdam/" target="_blank" rel="noopener noreferrer" className="hover:text-[rgb(var(--brand))] hover:underline">Contact the City (EN)</a>
+                </li>
+                <li>
+                  <a href="https://www.amsterdam.nl/en/general-items/items-footer/privacy-city-of-amsterdam/" target="_blank" rel="noopener noreferrer" className="hover:text-[rgb(var(--brand))] hover:underline">Privacy (EN)</a>
+                </li>
+                <li>
+                  <a href="https://www.amsterdam.nl/en/general-items/items-footer/cookies/" target="_blank" rel="noopener noreferrer" className="hover:text-[rgb(var(--brand))] hover:underline">Cookies (EN)</a>
+                </li>
+                <li>
+                  <a href="https://www.amsterdam.nl/en/general-items/items-footer/about-website/" target="_blank" rel="noopener noreferrer" className="hover:text-[rgb(var(--brand))] hover:underline">About this website (Accessibility) (EN)</a>
+                </li>
+              </ul>
             </div>
           </div>
 
           {/* Bottom footer */}
           <div className="mt-8 pt-4 border-t border-slate-200 text-center">
             <p className="text-sm text-slate-500">
-              Built with Amsterdam's climate justice principles: "Unequal investment for equal opportunities"
+              Sustainable energy • Circular economy • Climate adaptation.
+            </p>
+            <p className="text-xs text-slate-500 mt-1">
+              Created for
+              {' '}
+              <a 
+                href="https://amsterdampolicyhackathon.org/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="hover:underline"
+              >
+                Amsterdam Policy Hackathon 2025
+              </a>
+              . Site developed by Strahil Peykov.
             </p>
           </div>
         </div>

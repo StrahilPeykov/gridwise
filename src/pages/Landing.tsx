@@ -41,9 +41,14 @@ export default function Landing() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>
             </Link>
-            <Link to="/coach" className="btn-secondary text-lg px-8 py-4">
+            <a 
+              href="https://www.amsterdam.nl/werk-en-inkomen/regelingen-bij-laag-inkomen-pak-je-kans/regelingen-alfabet/gratis-hulp-huis-energie-besparen/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="btn-secondary text-lg px-8 py-4"
+            >
               Free energy coach consultation
-            </Link>
+            </a>
           </div>
 
           {/* Key Stats - Updated to reflect Amsterdam's goals */}
