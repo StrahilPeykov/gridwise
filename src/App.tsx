@@ -37,12 +37,8 @@ export default function App() {
     <div className="min-h-screen">
       <header className="sticky top-0 z-40 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b shadow-sm">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-[rgb(var(--brand))] to-[rgb(var(--brand-700))] rounded-lg flex items-center justify-center">
-              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-            </div>
+          <Link to="/" className="flex items-center gap-3">
+            <img src="/logo.png" alt="Amsterdam Energy" className="h-10 sm:h-12 w-auto object-contain" />
             <span className="text-base font-semibold text-[rgb(var(--brand))]">
               Energie Kompas Amsterdam
             </span>
@@ -111,11 +107,7 @@ export default function App() {
             {/* About */}
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <div className="w-6 h-6 bg-gradient-to-br from-[rgb(var(--brand))] to-[rgb(var(--brand-700))] rounded-lg flex items-center justify-center">
-                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                  </svg>
-                </div>
+                <img src="/logo.png" alt="Amsterdam Energy" className="h-8 w-auto object-contain" />
                 <span className="font-semibold text-[rgb(var(--brand))]">Energie Kompas Amsterdam</span>
               </div>
               <p className="text-sm text-slate-600 mb-4">

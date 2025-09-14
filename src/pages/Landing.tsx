@@ -126,18 +126,18 @@ export default function Landing() {
             <div className="text-center lg:text-left">
               <div className="bg-gradient-to-br from-[rgb(var(--brand))] to-[rgb(var(--brand-700))] rounded-3xl p-8 text-white">
                 <h3 className="text-2xl font-bold mb-4">Our City of Tomorrow</h3>
-                <p className="text-green-50 mb-6">
+                <p className="text-red-50 mb-6">
                   Amsterdam is committed to <strong>unequal investment for equal opportunities</strong> – 
                   prioritizing support for the most vulnerable while ensuring all residents can participate in the energy transition.
                 </p>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="bg-white/20 rounded-2xl p-3">
                     <div className="text-2xl font-bold">2030</div>
-                    <div className="text-green-100 text-xs">Zero-emission transport</div>
+                    <div className="text-red-100 text-xs">Zero-emission transport</div>
                   </div>
                   <div className="bg-white/20 rounded-2xl p-3">
                     <div className="text-2xl font-bold">2040</div>
-                    <div className="text-green-100 text-xs">Natural gas phase-out</div>
+                    <div className="text-red-100 text-xs">Natural gas phase-out</div>
                   </div>
                 </div>
               </div>

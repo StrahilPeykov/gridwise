@@ -178,7 +178,7 @@ export default function Rewards() {
             </div>
             <div className="w-full bg-slate-200 rounded-full h-2">
               <div 
-                className="bg-gradient-to-r from-green-400 to-green-600 h-2 rounded-full"
+                className="bg-gradient-to-r from-red-400 to-red-600 h-2 rounded-full"
                 style={{ width: `${sustainabilityScore}%` }}
               ></div>
             </div>
@@ -190,11 +190,11 @@ export default function Rewards() {
                 </div>
                 <div className="text-blue-600">CO₂ Avoided</div>
               </div>
-              <div className="text-center p-3 bg-green-50 rounded-lg">
-                <div className="font-bold text-green-700">
+              <div className="text-center p-3 bg-red-50 rounded-lg">
+                <div className="font-bold text-red-700">
                   €{Math.round(credits * 0.3)}
                 </div>
-                <div className="text-green-600">Grid Savings</div>
+                <div className="text-red-600">Grid Savings</div>
               </div>
             </div>
 
@@ -221,7 +221,7 @@ export default function Rewards() {
               <div 
                 key={pledge.id}
                 className={`p-4 border rounded-xl transition-all ${
-                  isActive ? 'border-[rgb(var(--brand))] bg-green-50' : 'border-slate-200'
+                  isActive ? 'border-[rgb(var(--brand))] bg-red-50' : 'border-slate-200'
                 }`}
               >
                 <div className="flex items-start justify-between mb-2">
@@ -251,7 +251,7 @@ export default function Rewards() {
                     pledge.gridImpact === 'high' ? 'bg-red-100 text-red-700' :
                     pledge.gridImpact === 'medium' ? 'bg-yellow-100 text-yellow-700' :
                     pledge.gridImpact === 'community' ? 'bg-purple-100 text-purple-700' :
-                    'bg-green-100 text-green-700'
+                    'bg-red-100 text-red-700'
                   }`}>
                     {pledge.gridImpact} impact
                   </span>
@@ -304,7 +304,7 @@ export default function Rewards() {
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           <div>
             <h2 className="text-xl font-semibold mb-2">Need Personal Guidance?</h2>
-            <p className="text-green-50">
+            <p className="text-red-50">
               Book a free consultation with Amsterdam's energy coaches for personalized advice on maximizing your energy savings.
             </p>
           </div>
@@ -363,7 +363,7 @@ export default function Rewards() {
                   key={index}
                   className={`p-4 rounded-xl border ${
                     credits >= level.threshold 
-                      ? 'bg-green-50 border-green-200' 
+                      ? 'bg-red-50 border-red-200' 
                       : 'bg-slate-50 border-slate-200'
                   }`}
                 >
@@ -374,7 +374,7 @@ export default function Rewards() {
                       <p className="text-sm text-slate-600">{level.threshold} credits required</p>
                     </div>
                     {credits >= level.threshold && (
-                      <span className="ml-auto text-green-600 font-medium text-sm">Unlocked!</span>
+                      <span className="ml-auto text-red-600 font-medium text-sm">Unlocked!</span>
                     )}
                   </div>
                   <p className="text-sm text-slate-700 ml-11">{level.reward}</p>

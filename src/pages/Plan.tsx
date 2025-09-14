@@ -92,7 +92,7 @@ export default function Plan() {
 
   const getStatusColor = (status: ActionStatus) => {
     switch (status) {
-      case 'will-do': return 'bg-green-100 text-green-800';
+      case 'will-do': return 'bg-red-100 text-red-800';
       case 'will-not-do': return 'bg-red-100 text-red-800';
       case 'completed': return 'bg-blue-100 text-blue-800';
       default: return 'bg-slate-100 text-slate-700';
@@ -191,7 +191,7 @@ export default function Plan() {
               Budget: up to €{budget.toLocaleString()}
             </span>
             {profile.autoFillData?.energyLabel && (
-              <span className="bg-green-50 text-green-800 px-3 py-1 rounded-full">
+              <span className="bg-red-50 text-red-800 px-3 py-1 rounded-full">
                 Energy label: {profile.autoFillData.energyLabel}
               </span>
             )}
@@ -205,7 +205,7 @@ export default function Plan() {
           {/* Progress Summary */}
           <div className="grid grid-cols-3 gap-4 mt-4 pt-4 border-t border-slate-200">
             <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">
+              <div className="text-2xl font-bold text-red-600">
                 {Object.values(actionStatuses).filter(s => s === 'will-do').length}
               </div>
               <div className="text-sm text-slate-600">Actions Planned</div>
@@ -227,7 +227,7 @@ export default function Plan() {
 
         {/* Neighborhood Comparison Panel */}
         {showNeighborhoodComparison && (
-          <div className="card p-6 mb-6 bg-gradient-to-r from-blue-50 to-green-50">
+          <div className="card p-6 mb-6 bg-gradient-to-r from-blue-50 to-red-50">
             <h2 className="text-xl font-semibold mb-4">Your Neighborhood (PC4 {profile.pc4})</h2>
             <div className="grid md:grid-cols-4 gap-4 text-sm">
               <div className="text-center">
@@ -242,7 +242,7 @@ export default function Plan() {
                 <div className="text-slate-600">Have Solar Panels</div>
               </div>
               <div className="text-center">
-                <div className="text-lg font-bold text-green-600">{mockNeighborhoodData.heatPumpAdoptionRate}%</div>
+                <div className="text-lg font-bold text-red-600">{mockNeighborhoodData.heatPumpAdoptionRate}%</div>
                 <div className="text-slate-600">Have Heat Pumps</div>
               </div>
               <div className="text-center">
@@ -295,7 +295,7 @@ export default function Plan() {
                        status === 'will-not-do' ? 'Not For Me' : 'Completed'}
                     </span>
                     <span className={`px-2 py-1 rounded-full text-xs border font-medium ${
-                      action.grade === 'A' ? 'bg-green-50 text-green-700 border-green-200' :
+                      action.grade === 'A' ? 'bg-red-50 text-red-700 border-red-200' :
                       action.grade === 'B' ? 'bg-blue-50 text-blue-700 border-blue-200' :
                       action.grade === 'C' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' :
                       'bg-slate-50 text-slate-700 border-slate-200'
@@ -351,7 +351,7 @@ export default function Plan() {
 
                   {status === 'will-do' && (
                     <div className="space-y-2">
-                      <div className="text-sm font-medium text-green-700">Great choice! Review details below.</div>
+                      <div className="text-sm font-medium text-red-700">Great choice! Review details below.</div>
                       <button className="btn-secondary text-sm w-full">Find Professionals</button>
                       <button 
                         onClick={() => {
@@ -473,7 +473,7 @@ export default function Plan() {
                         <div className="p-2 bg-slate-50 rounded">
                           <strong>Upfront cost:</strong> €{action.costRangeEUR[0]}–{action.costRangeEUR[1]}
                         </div>
-                        <div className="p-2 bg-green-50 rounded">
+                        <div className="p-2 bg-red-50 rounded">
                           <strong>Annual savings:</strong> €{action.annualSavingsEUR[0]}–{action.annualSavingsEUR[1]}
                         </div>
                         <div className="p-2 bg-purple-50 rounded">

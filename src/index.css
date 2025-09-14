@@ -2,9 +2,9 @@
 
 /* Theme tokens */
 :root {
-  --brand: 34 197 94;        /* Tailwind green-500 */
-  --brand-600: 22 163 74;    /* green-600 */
-  --brand-700: 21 128 61;    /* green-700 */
+  --brand: 236 0 0;          /* Amsterdam Red #EC0000 */
+  --brand-600: 218 18 25;    /* Flag darker red #DA1219 */
+  --brand-700: 176 0 0;      /* Deeper red for gradients */
 }
 
 @layer base {

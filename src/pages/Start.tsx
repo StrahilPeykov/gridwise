@@ -252,8 +252,8 @@ export default function Start() {
               </label>
 
               {autoFillData && (
-                <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-4">
-                  <h4 className="font-medium text-green-800 mb-2">Data Retrieved:</h4>
+                <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-4">
+                  <h4 className="font-medium text-red-800 mb-2">Data Retrieved:</h4>
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     <div>Energy Label: <strong>{autoFillData.energyLabel}</strong></div>
                     <div>Built: <strong>{autoFillData.buildYear}</strong></div>
@@ -305,7 +305,7 @@ export default function Start() {
                       {integrationSteps.map(step => (
                         <div key={step.id} className="flex items-center gap-2 text-sm">
                           {step.status === 'done' ? (
-                            <svg className="w-4 h-4 text-green-600" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-7.364 7.364a1 1 0 01-1.414 0L3.293 9.828a1 1 0 111.414-1.414l3.222 3.222 6.657-6.657a1 1 0 011.414 0z" clipRule="evenodd"/></svg>
+                            <svg className="w-4 h-4 text-red-600" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-7.364 7.364a1 1 0 01-1.414 0L3.293 9.828a1 1 0 111.414-1.414l3.222 3.222 6.657-6.657a1 1 0 011.414 0z" clipRule="evenodd"/></svg>
                           ) : step.status === 'running' ? (
                             <svg className="w-4 h-4 text-blue-600 animate-spin" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path></svg>
                           ) : (
@@ -320,11 +320,11 @@ export default function Start() {
                   </div>
                 )}
                 {integrationStatus === 'done' && autoFillData?.smartMeterInsights && (
-                  <div className="mt-3 p-3 bg-green-50 rounded text-sm text-green-800">
+                  <div className="mt-3 p-3 bg-red-50 rounded text-sm text-red-800">
                     <div className="font-medium mb-1">Smart meter insights:</div>
                     <div>Peak window: <strong>{autoFillData.smartMeterInsights.peakWindow}</strong></div>
                     <div>Night base load: <strong>{autoFillData.smartMeterInsights.nightBaseLoadKwh} kWh</strong></div>
-                    <div className="text-green-900 mt-1">{autoFillData.smartMeterInsights.notes}</div>
+                    <div className="text-red-900 mt-1">{autoFillData.smartMeterInsights.notes}</div>
                   </div>
                 )}
               </div>

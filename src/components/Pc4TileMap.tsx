@@ -21,13 +21,13 @@ export default function Pc4TileMap({ data, mode }: { data: Tile[]; mode: Mode })
   const colorFor = (v: number) => {
     const clamped = Math.max(0, Math.min(1, v));
     if (mode === 'barriers') {
-      // light red -> strong red
+      // light red -> strong darker red (flag shade)
       const alpha = 0.15 + clamped * 0.75;
-      return `rgba(239, 68, 68, ${alpha})`; // tailwind red-500 base
+      return `rgba(218, 18, 25, ${alpha})`; // #DA1219
     }
-    // participation/success: light green -> strong green
+    // participation/success: light to strong Amsterdam red (brand)
     const alpha = 0.15 + clamped * 0.75;
-    return `rgba(34, 197, 94, ${alpha})`; // tailwind green-500 base
+    return `rgba(236, 0, 0, ${alpha})`; // #EC0000
   };
 
   const labelFor = (t: Tile) => {
@@ -92,11 +92,11 @@ export default function Pc4TileMap({ data, mode }: { data: Tile[]; mode: Mode })
         ) : (
           <>
             <span className="inline-flex items-center gap-1">
-              <span className="w-4 h-4 rounded" style={{ backgroundColor: 'rgba(34, 197, 94, 0.2)' }}></span>
+              <span className="w-4 h-4 rounded" style={{ backgroundColor: 'rgba(236, 0, 0, 0.2)' }}></span>
               Low
             </span>
             <span className="inline-flex items-center gap-1">
-              <span className="w-4 h-4 rounded" style={{ backgroundColor: 'rgba(34, 197, 94, 0.9)' }}></span>
+              <span className="w-4 h-4 rounded" style={{ backgroundColor: 'rgba(236, 0, 0, 0.9)' }}></span>
               High
             </span>
           </>
@@ -105,4 +105,3 @@ export default function Pc4TileMap({ data, mode }: { data: Tile[]; mode: Mode })
     </div>
   );
 }
-

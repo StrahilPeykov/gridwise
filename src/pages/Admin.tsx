@@ -324,7 +324,7 @@ export default function EnhancedAdmin() {
     switch (impact) {
       case 'high': return 'text-red-700 bg-red-100';
       case 'medium': return 'text-yellow-700 bg-yellow-100';
-      case 'low': return 'text-green-700 bg-green-100';
+      case 'low': return 'text-red-700 bg-red-100';
       default: return 'text-slate-700 bg-slate-100';
     }
   };
@@ -382,17 +382,17 @@ export default function EnhancedAdmin() {
             </div>
           </div>
 
-          <div className="card p-6 bg-gradient-to-br from-green-50 to-green-100 border-green-200">
-            <h3 className="font-bold text-green-800 mb-2">2050 Goals</h3>
+          <div className="card p-6 bg-gradient-to-br from-red-50 to-red-100 border-red-200">
+            <h3 className="font-bold text-red-800 mb-2">2050 Goals</h3>
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <span className="text-sm text-green-700">Climate Neutral Progress</span>
-                <span className="font-bold text-green-800">8.7%</span>
+                <span className="text-sm text-red-700">Climate Neutral Progress</span>
+                <span className="font-bold text-red-800">8.7%</span>
               </div>
-              <div className="w-full bg-green-200 rounded-full h-2">
-                <div className="bg-green-600 h-2 rounded-full" style={{ width: '9%' }}></div>
+              <div className="w-full bg-red-200 rounded-full h-2">
+                <div className="bg-red-600 h-2 rounded-full" style={{ width: '9%' }}></div>
               </div>
-              <div className="text-xs text-green-600">Target: 95% CO₂ reduction</div>
+              <div className="text-xs text-red-600">Target: 95% CO₂ reduction</div>
             </div>
           </div>
         </div>
@@ -413,7 +413,7 @@ export default function EnhancedAdmin() {
             <div className="text-xs text-slate-600">Coach Consultations</div>
           </div>
           <div className="card p-4 text-center">
-            <div className="text-2xl font-bold text-green-600">{amsterdamAnalytics.energyCooperativeInterest}</div>
+          <div className="text-2xl font-bold text-red-600">{amsterdamAnalytics.energyCooperativeInterest}</div>
             <div className="text-xs text-slate-600">Energy Coop Interest</div>
           </div>
         </div>
@@ -428,7 +428,7 @@ export default function EnhancedAdmin() {
               key={insight.id}
               className={`p-4 border rounded-lg cursor-pointer transition-all ${
                 selectedInsight === insight.id 
-                  ? 'border-[rgb(var(--brand))] bg-green-50' 
+                  ? 'border-[rgb(var(--brand))] bg-red-50' 
                   : 'border-slate-200 hover:border-slate-300'
               }`}
               onClick={() => setSelectedInsight(selectedInsight === insight.id ? null : insight.id)}
@@ -484,7 +484,7 @@ export default function EnhancedAdmin() {
                 if (name === 'completionRate') return [`${value}%`, 'Completion Rate'];
                 return [value, name];
               }} />
-              <Bar dataKey="count" fill="#22c55e" />
+              <Bar dataKey="count" fill="#EC0000" />
               <Bar dataKey="completionRate" fill="#3b82f6" />
             </BarChart>
           </ResponsiveContainer>
@@ -619,7 +619,7 @@ export default function EnhancedAdmin() {
                       <div className="w-20 bg-slate-200 rounded-full h-2">
                         <div 
                           className={`h-2 rounded-full ${
-                            district.completionRate > 60 ? 'bg-green-500' :
+                            district.completionRate > 60 ? 'bg-red-500' :
                             district.completionRate > 40 ? 'bg-yellow-500' : 'bg-red-500'
                           }`}
                           style={{ width: `${district.completionRate}%` }}
@@ -633,7 +633,7 @@ export default function EnhancedAdmin() {
                     <span className={`px-2 py-1 rounded-full text-xs ${
                       district.gridStrain === 'High' ? 'bg-red-100 text-red-700' :
                       district.gridStrain === 'Medium' ? 'bg-yellow-100 text-yellow-700' :
-                      'bg-green-100 text-green-700'
+                      'bg-red-100 text-red-700'
                     }`}>
                       {district.gridStrain}
                     </span>
@@ -644,7 +644,7 @@ export default function EnhancedAdmin() {
                     ) : district.avgIncome === 'Low' ? (
                       <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">Social Support</span>
                     ) : (
-                      <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs">Performing Well</span>
+                      <span className="px-2 py-1 bg-red-100 text-red-700 rounded text-xs">Performing Well</span>
                     )}
                   </td>
                 </tr>
@@ -659,18 +659,18 @@ export default function EnhancedAdmin() {
         <h2 className="text-xl font-semibold mb-4">Municipal Action Recommendations</h2>
         <div className="grid md:grid-cols-2 gap-6">
           <div>
-            <h3 className="font-medium text-green-700 mb-3">Immediate Actions (0-3 months)</h3>
+            <h3 className="font-medium text-red-700 mb-3">Immediate Actions (0-3 months)</h3>
             <ul className="space-y-2 text-sm">
               <li className="flex items-start gap-2">
-                <span className="w-2 h-2 bg-green-600 rounded-full mt-2 flex-shrink-0"></span>
+                <span className="w-2 h-2 bg-red-600 rounded-full mt-2 flex-shrink-0"></span>
                 <span>Deploy multilingual energy coaches in postcodes 1012, 1013, 1016</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="w-2 h-2 bg-green-600 rounded-full mt-2 flex-shrink-0"></span>
+                <span className="w-2 h-2 bg-red-600 rounded-full mt-2 flex-shrink-0"></span>
                 <span>Launch VVE collective heat pump pilot program in Zuidoost</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="w-2 h-2 bg-green-600 rounded-full mt-2 flex-shrink-0"></span>
+                <span className="w-2 h-2 bg-red-600 rounded-full mt-2 flex-shrink-0"></span>
                 <span>Expand grid-friendly behavior incentives to all constrained areas</span>
               </li>
             </ul>

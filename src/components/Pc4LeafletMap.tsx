@@ -158,8 +158,9 @@ export default function Pc4LeafletMap({
     }
     homeBoundsRef.current = null;
 
-    const greenStart = '#dcfce7', greenEnd = '#22c55e';
-    const redStart = '#fee2e2', redEnd = '#ef4444';
+    // Use Amsterdam reds for both adoption and barriers
+    const greenStart = '#fee2e2', greenEnd = '#ec0000'; // adoption -> brand red scale
+    const redStart = '#fee2e2', redEnd = '#da1219';     // barriers -> darker flag red scale
     const start = mode === 'barriers' ? redStart : greenStart;
     const end = mode === 'barriers' ? redEnd : greenEnd;
 
