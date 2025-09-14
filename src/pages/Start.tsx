@@ -125,7 +125,7 @@ export default function Start() {
       .sort((a, b) => (ratingsMap[b] ?? 0) - (ratingsMap[a] ?? 0))[0] || (priorities[0] as PriorityKey) || 'save-money';
     
     const profile: UserProfile = {
-      lang: (form.get('lang') as 'en' | 'nl') ?? 'en',
+      lang: (form.get('lang') as 'en' | 'nl' | 'tr') ?? 'en',
       pc4: String(form.get('pc4') ?? ''),
       investmentCapacityEUR: Number(form.get('investment') ?? 0),
       homeType: form.get('homeType') as any,
@@ -180,7 +180,10 @@ export default function Start() {
         {/* Step 1: Basic Info & Auto-fill (kept mounted so FormData captures values) */}
         <div className={step === 1 ? '' : 'hidden'}>
             <fieldset className="card p-6">
-              <legend className="font-semibold text-lg mb-4">Language / Taal</legend>
+              <div className="flex items-center justify-between mb-4">
+                <legend className="font-semibold text-lg">Language / Taal</legend>
+                <button type="button" className="text-sm text-[rgb(var(--brand))] hover:underline">See more</button>
+              </div>
               <div className="grid grid-cols-2 gap-4">
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="lang" value="en" defaultChecked className="text-[rgb(var(--brand))]" />
@@ -190,6 +193,18 @@ export default function Start() {
                   <input type="radio" name="lang" value="nl" className="text-[rgb(var(--brand))]" />
                   <span>Nederlands</span>
                 </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" name="lang" value="tr" className="text-[rgb(var(--brand))]" />
+                  <span>Türkçe</span>
+                </label>
+              </div>
+
+              <div className="mt-4">
+                <div className="font-medium text-sm mb-2">Language level</div>
+                <div className="flex items-center gap-2">
+                  <button type="button" className="nav-pill border border-slate-300">Normal</button>
+                  <button type="button" className="nav-pill border border-slate-300">Simple</button>
+                </div>
               </div>
             </fieldset>
 

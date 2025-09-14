@@ -6,7 +6,7 @@ export type DataConsent = 'none' | 'temporary' | 'full';
 export type PriorityKey = 'save-money' | 'warmer-home' | 'climate-impact' | 'grid-stability';
 
 export interface UserProfile {
-  lang: 'en' | 'nl';
+  lang: 'en' | 'nl' | 'tr';
   pc4: PC4; // first 4 postcode digits
   investmentCapacityEUR: number; // upfront budget
   homeType: HomeType;

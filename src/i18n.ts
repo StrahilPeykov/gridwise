@@ -1,8 +1,9 @@
 import translations from './data/translations.json';
 
-export const useTranslation = (lang: 'en' | 'nl' = 'en') => {
+export const useTranslation = (lang: 'en' | 'nl' | 'tr' = 'en') => {
   const t = (key: string): string => {
-    const dict = translations[lang] as Record<string, any>;
+    // Fallback to English if language pack is missing
+    const dict = (translations as any)[lang] ?? (translations as any)['en'];
 
     // 1) Direct lookup for flat keys like "landing.title"
     if (Object.prototype.hasOwnProperty.call(dict, key)) {
