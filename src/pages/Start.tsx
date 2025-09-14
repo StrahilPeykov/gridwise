@@ -9,7 +9,9 @@ import { prefillFromExternalSources, extractInfoFromUploads } from '../services/
 export default function Start() {
   const navigate = useNavigate();
   const { setProfile, setRecs, track } = useApp();
-  const { t } = useTranslation('en');
+  const [startLang, setStartLang] = useState<'en' | 'nl' | 'tr'>('en');
+  const [langLevel, setLangLevel] = useState<'normal' | 'simple'>('normal');
+  const { t } = useTranslation(startLang);
   const [step, setStep] = useState(1);
   const [autoFillData, setAutoFillData] = useState<any>(null);
   const [dataConsent, setDataConsent] = useState<'none' | 'temporary' | 'full'>('none');
@@ -184,26 +186,40 @@ export default function Start() {
                 <legend className="font-semibold text-lg">Language / Taal</legend>
                 <button type="button" className="text-sm text-[rgb(var(--brand))] hover:underline">See more</button>
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="radio" name="lang" value="en" defaultChecked className="text-[rgb(var(--brand))]" />
-                  <span>English</span>
+              <div className="grid md:grid-cols-2 gap-4">
+                <label className="grid gap-2">
+                  <span className="font-medium">Choose language</span>
+                  <select 
+                    name="lang"
+                    value={startLang}
+                    onChange={(e) => setStartLang(e.target.value as 'en' | 'nl' | 'tr')}
+                    className="border border-slate-300 rounded-xl px-3 py-2 focus:border-[rgb(var(--brand))] focus:ring-1 focus:ring-[rgb(var(--brand))] outline-none"
+                  >
+                    <option value="en">English</option>
+                    <option value="nl">Nederlands</option>
+                    <option value="tr">Türkçe</option>
+                  </select>
                 </label>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="radio" name="lang" value="nl" className="text-[rgb(var(--brand))]" />
-                  <span>Nederlands</span>
-                </label>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="radio" name="lang" value="tr" className="text-[rgb(var(--brand))]" />
-                  <span>Türkçe</span>
-                </label>
-              </div>
 
-              <div className="mt-4">
-                <div className="font-medium text-sm mb-2">Language level</div>
-                <div className="flex items-center gap-2">
-                  <button type="button" className="nav-pill border border-slate-300">Normal</button>
-                  <button type="button" className="nav-pill border border-slate-300">Simple</button>
+                <div className="grid gap-2">
+                  <span className="font-medium">Language level</span>
+                  <div className="flex items-center gap-2">
+                    <button 
+                      type="button"
+                      onClick={() => setLangLevel('normal')}
+                      className={`nav-pill border ${langLevel === 'normal' ? 'bg-slate-100 border-[rgb(var(--brand))] text-[rgb(var(--brand))] font-semibold' : 'border-slate-300'}`}
+                    >
+                      Normal
+                    </button>
+                    <button 
+                      type="button"
+                      onClick={() => setLangLevel('simple')}
+                      className={`nav-pill border ${langLevel === 'simple' ? 'bg-slate-100 border-[rgb(var(--brand))] text-[rgb(var(--brand))] font-semibold' : 'border-slate-300'}`}
+                    >
+                      Simple
+                    </button>
+                  </div>
+                  <input type="hidden" name="langLevel" value={langLevel} />
                 </div>
               </div>
             </fieldset>
