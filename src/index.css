@@ -29,7 +29,7 @@
     @apply inline-flex items-center justify-center gap-2 rounded-2xl bg-[rgb(var(--brand))] text-white px-5 py-3 font-medium shadow-lg hover:shadow-xl transition-shadow hover:bg-[rgb(var(--brand-600))];
   }
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-300 bg-white px-5 py-3 font-medium hover:bg-slate-50 transition-colors;
+    @apply inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-300 bg-white px-5 py-3 font-medium hover:bg-slate-50 transition-colors text-slate-700;
   }
   .nav-pill {
     @apply rounded-full px-3 py-1 text-sm hover:bg-slate-100 transition-colors;

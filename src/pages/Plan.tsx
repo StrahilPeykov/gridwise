@@ -255,15 +255,18 @@ export default function Plan() {
                 <span className="font-medium">Interested in joining an energy cooperative?</span>
                 <button 
                   className="btn-primary text-sm"
-                  onClick={() => track({
-                    t: Date.now(),
-                    sid: crypto.randomUUID(),
-                    event: 'action_viewed',
-                    pc4: profile.pc4,
-                    payload: { cooperative_interest: true }
-                  })}
+                  onClick={() => {
+                    track({
+                      t: Date.now(),
+                      sid: crypto.randomUUID(),
+                      event: 'action_viewed',
+                      pc4: profile.pc4,
+                      payload: { cooperative_interest: true }
+                    });
+                    window.open('https://www.amsterdam.nl/leefomgeving/windmolens-amsterdam', '_blank');
+                  }}
                 >
-                  Find Local Groups
+                  Find Groups
                 </button>
               </div>
             </div>
