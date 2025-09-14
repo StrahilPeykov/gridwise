@@ -55,7 +55,8 @@ const policyInsights = [
 ];
 
 export default function EnhancedAdmin() {
-  const { events, profile } = useApp();
+  // Ignore plan events to keep admin analytics static
+  const { profile } = useApp();
   const { t } = useTranslation(profile?.lang || 'en');
   const [selectedInsight, setSelectedInsight] = useState<string | null>(null);
   const [mapView, setMapView] = useState<'participation' | 'barriers' | 'success'>('participation');
@@ -112,70 +113,22 @@ export default function EnhancedAdmin() {
     };
   }, []);
 
-  // Derive top barrier insights from anonymized events (PC4-level only)
-  const derivedTopBarriers = useMemo(() => {
-    const counts: Record<string, number> = {};
-    events.forEach((e) => {
-      if (e.event === 'action_status_changed') {
-        const p = (e.payload || {}) as any;
-        if (p.status === 'will-not-do' && p.feedback) {
-          const key = String(p.feedback)
-            .replace(/-/g, ' ')
-            .replace(/\b\w/g, (c) => c.toUpperCase());
-          counts[key] = (counts[key] || 0) + 1;
-        }
-      }
-    });
-    const total = Object.values(counts).reduce((a, b) => a + b, 0);
-    return Object.entries(counts).map(([barrier, count]) => ({
-      barrier,
-      count,
-      percentage: total ? Math.round((count / total) * 100) : 0
-    }));
-  }, [events]);
+  // Keep barriers static in admin (do not derive from plan input)
+  const derivedTopBarriers: Array<{ barrier: string; count: number; percentage: number }> = [];
 
-  // Aggregate anonymized usage by PC4 and action from events
-  const usageByPc4 = useMemo(() => {
-    type ActionAgg = { willDo: number; willNotDo: number; reasons: Record<string, number> };
-    const map = new Map<string, { pc4: string; actions: Record<string, ActionAgg>; totalWillDo: number; totalWillNotDo: number }>();
-
-    const normReason = (r: unknown) => (r ? String(r) : 'other');
-
-    events.forEach((e) => {
-      if (e.event !== 'action_status_changed') return;
-      const p = (e.payload || {}) as any;
-      const pc4 = e.pc4;
-      const actionId = p.actionId as string | undefined;
-      const status = p.status as string | undefined;
-      if (!pc4 || !actionId || !status) return;
-
-      if (!map.has(pc4)) map.set(pc4, { pc4, actions: {}, totalWillDo: 0, totalWillNotDo: 0 });
-      const entry = map.get(pc4)!;
-      if (!entry.actions[actionId]) entry.actions[actionId] = { willDo: 0, willNotDo: 0, reasons: {} };
-      const aa = entry.actions[actionId];
-
-      if (status === 'will-do') {
-        aa.willDo += 1;
-        entry.totalWillDo += 1;
-      } else if (status === 'will-not-do') {
-        aa.willNotDo += 1;
-        entry.totalWillNotDo += 1;
-        const r = normReason(p.feedback);
-        aa.reasons[r] = (aa.reasons[r] || 0) + 1;
-      }
-    });
-
-    return map;
-  }, [events]);
+  // Keep usage empty so visuals don't react to plan events
+  const usageByPc4 = useMemo(
+    () => new Map<string, { pc4: string; actions: Record<string, { willDo: number; willNotDo: number; reasons: Record<string, number> }>; totalWillDo: number; totalWillNotDo: number }>(),
+    []
+  );
 
   // Map coverage: union of known districts, constrained areas, and any PC4 in events
   const pc4List = useMemo(() => {
     const set = new Set<string>();
     amsterdamAnalytics.districtInsights.forEach((d) => set.add(d.pc4));
     constrainedAreas.forEach((pc4) => set.add(pc4));
-    events.forEach((e) => set.add(e.pc4));
     return Array.from(set).sort();
-  }, [events, amsterdamAnalytics.districtInsights]);
+  }, [amsterdamAnalytics.districtInsights]);
 
   // Filter options
   const actionOptions = useMemo(() => [{ id: 'all', title: 'All actions' }, ...actions.map((a) => ({ id: a.id, title: a.title }))], []);
@@ -273,12 +226,12 @@ export default function EnhancedAdmin() {
       const pretty = barrierFilter.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
       notes.push(`Barrier focus: "${pretty}" appears frequently in selected areas.`);
     } else {
-      const globalTop = derivedTopBarriers.slice().sort((a, b) => b.count - a.count)[0];
+      const globalTop = amsterdamAnalytics.topBarriers[0];
       if (globalTop) notes.push(`Top barrier overall: ${globalTop.barrier}`);
     }
 
     return notes.slice(0, 5);
-  }, [mapDataset, amsterdamAnalytics.districtInsights, derivedTopBarriers, selectedActionId, barrierFilter]);
+  }, [mapDataset, amsterdamAnalytics.districtInsights, amsterdamAnalytics.topBarriers, selectedActionId, barrierFilter]);
 
   // Additional metrics used in the goals section
   const amsterdamMetrics = useMemo(() => ({
@@ -496,14 +449,14 @@ export default function EnhancedAdmin() {
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
-                data={derivedTopBarriers.length ? derivedTopBarriers : amsterdamAnalytics.topBarriers}
+                data={amsterdamAnalytics.topBarriers}
                 cx="50%"
                 cy="50%"
                 outerRadius={100}
                 dataKey="count"
                 label={({ barrier, percentage }) => `${barrier}: ${percentage}%`}
               >
-                {(derivedTopBarriers.length ? derivedTopBarriers : amsterdamAnalytics.topBarriers).map((entry, index) => (
+                {amsterdamAnalytics.topBarriers.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={['#ef4444', '#f59e0b', '#3b82f6', '#8b5cf6', '#6b7280'][index]} />
                 ))}
               </Pie>
